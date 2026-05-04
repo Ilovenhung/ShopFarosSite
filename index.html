@@ -9,47 +9,35 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* CSS Đồng bộ với web chính */
         :root { --bg-main: #0b0e14; --bg-card: rgba(21, 25, 35, 0.7); --text-main: #ffffff; --text-sub: #8b949e; --border: rgba(33, 38, 49, 0.8); --cyan: #00e5ff; --green: #00ff88; --red: #ff4757; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
         body { background-color: #000; color: var(--text-main); display: flex; justify-content: center; overflow: hidden; }
-        
         .app-container { width: 100%; max-width: 480px; background-color: var(--bg-main); height: 100vh; overflow-y: auto; padding: 20px 15px; position: relative; }
-        
         .btn-back { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #fff; padding: 10px 15px; border-radius: 8px; cursor: pointer; margin-bottom: 20px; display: inline-block; text-decoration: none; font-size: 14px; font-weight: 500; }
-        
         .card-ui { background: var(--bg-card); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 20px; }
         .user-card { display: flex; flex-direction: column; gap: 15px; }
         .user-info { display: flex; gap: 15px; align-items: center; }
         .avatar { width: 55px; height: 55px; border-radius: 14px; background: rgba(0,229,255,0.1); border: 1px solid var(--cyan); display: flex; justify-content: center; align-items: center; font-size: 26px; color: var(--cyan); box-shadow: 0 0 15px rgba(0,229,255,0.2); }
         .balance-box { background: rgba(0,0,0,0.4); border-radius: 12px; padding: 15px; border: 1px solid var(--border); }
-        
         .tab-container { display: flex; gap: 10px; margin-bottom: 20px; }
         .tab-btn { flex: 1; text-align: center; padding: 15px; border-radius: 12px; cursor: pointer; border: 1px solid var(--border); background: rgba(255,255,255,0.02); transition: 0.3s; color: var(--text-sub); }
         .tab-btn i { font-size: 26px; margin-bottom: 8px; display: block; transition: 0.3s; }
-        
-        /* Hiệu ứng chọn Tab ADR */
         .tab-btn.active.adr { border-color: var(--green); background: rgba(0,255,136,0.05); color: #fff; box-shadow: 0 0 15px rgba(0,255,136,0.2); }
         .tab-btn.active.adr i { color: var(--green); }
-        
-        /* Hiệu ứng chọn Tab IOS */
         .tab-btn.active.ios { border-color: var(--cyan); background: rgba(0,229,255,0.05); color: #fff; box-shadow: 0 0 15px rgba(0,229,255,0.2); }
         .tab-btn.active.ios i { color: var(--cyan); }
-        
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: slideUpFade 0.3s forwards; }
-        
         .file-item { border-left: 4px solid var(--cyan); padding: 15px; }
         .file-item.adr { border-left-color: var(--green); }
         .btn-cyan { width: 100%; color: #000; border: none; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; margin-top: 10px; }
-        
         @keyframes slideUpFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
     <div class="app-container">
-        <a href="http://shopfaros.site" class="btn-back"><i class="fas fa-arrow-left"></i> Quay lại Shop Chính</a>
+        <a href="http://shopfaros.page.gd" class="btn-back"><i class="fas fa-arrow-left"></i> Quay lại Shop Chính</a>
 
         <div class="card-ui user-card">
             <div class="user-info">
@@ -57,7 +45,7 @@
                 <div style="flex:1">
                     <h2 style="font-size: 18px; margin-bottom: 4px; color:#fff; display:flex; align-items:center; gap:8px;">
                         <span id="ui-username">Đang tải...</span>
-                        <span style="font-size:9px; background:rgba(0,229,255,0.2); color:var(--cyan); padding:3px 6px; border-radius:8px; border:1px solid var(--cyan);">GITHUB SERVER</span>
+                        <span style="font-size:9px; background:rgba(0,229,255,0.2); color:var(--cyan); padding:3px 6px; border-radius:8px; border:1px solid var(--cyan);">SHOP FILE</span>
                     </h2>
                     <p style="font-size: 12px; color:var(--text-sub); font-family:monospace">Đã kết nối với hệ thống FAROS</p>
                 </div>
@@ -69,7 +57,7 @@
         </div>
 
         <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 10px;">Danh Mục File Hỗ Trợ</h2>
-        <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 20px;">Lưu ý: Mua File trực tiếp tại ứng dụng Shop chính để nhận link tự động vào Kho.</p>
+        <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 20px;">Lưu ý: Bạn chọn tải file trực tiếp trên đây.</p>
 
         <div class="tab-container">
             <div class="tab-btn active adr" id="btn-adr" onclick="switchOS('adr')">
@@ -85,19 +73,10 @@
             <div class="card-ui file-item adr">
                 <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
                     <h4 style="font-size:16px; font-weight:700;">Aimlock Full Tối Ưu (ADR)</h4>
-                    <span style="color:var(--green); font-family:monospace; font-weight:bold; font-size:15px;">20.000đ</span>
+                    <span style="color:var(--green); font-family:monospace; font-weight:bold; font-size:15px;">MIỄN PHÍ</span>
                 </div>
-                <p style="font-size:12px; color:var(--text-sub); margin-bottom:10px;">Ghim tâm siêu mượt, hỗ trợ setup thông qua Termux / Shizuku.</p>
-                <button class="btn-cyan" style="background: linear-gradient(135deg, var(--green), #00b0ff);" onclick="veShopMua()"><i class="fas fa-shopping-cart"></i> MUA BÊN TRANG CHỦ</button>
-            </div>
-
-            <div class="card-ui file-item adr">
-                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                    <h4 style="font-size:16px; font-weight:700;">Data Headshot (ADR)</h4>
-                    <span style="color:var(--green); font-family:monospace; font-weight:bold; font-size:15px;">15.000đ</span>
-                </div>
-                <p style="font-size:12px; color:var(--text-sub); margin-bottom:10px;">Chép thẳng vào thư mục Android/data, an toàn chống ban 100%.</p>
-                <button class="btn-cyan" style="background: linear-gradient(135deg, var(--green), #00b0ff);" onclick="veShopMua()"><i class="fas fa-shopping-cart"></i> MUA BÊN TRANG CHỦ</button>
+                <p style="font-size:12px; color:var(--text-sub); margin-bottom:10px;">Ghim tâm siêu mượt, hỗ trợ setup thông qua Termux.</p>
+                <button class="btn-cyan" style="background: linear-gradient(135deg, var(--green), #00b0ff);" onclick="window.open('LINK_DRIVE_CUA_BAN_O_DAY', '_blank')"><i class="fas fa-download"></i> TẢI XUỐNG NGAY</button>
             </div>
 
         </div>
@@ -107,19 +86,10 @@
             <div class="card-ui file-item ios">
                 <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
                     <h4 style="font-size:16px; font-weight:700;">Chứng chỉ P12 (IOS)</h4>
-                    <span style="color:var(--cyan); font-family:monospace; font-weight:bold; font-size:15px;">50.000đ</span>
+                    <span style="color:var(--cyan); font-family:monospace; font-weight:bold; font-size:15px;">MIỄN PHÍ</span>
                 </div>
                 <p style="font-size:12px; color:var(--text-sub); margin-bottom:10px;">Dùng để cài app ngoài không bị Apple thu hồi. Hạn dùng 1 năm.</p>
-                <button class="btn-cyan" style="background: linear-gradient(135deg, var(--cyan), #00b0ff);" onclick="veShopMua()"><i class="fas fa-shopping-cart"></i> MUA BÊN TRANG CHỦ</button>
-            </div>
-
-            <div class="card-ui file-item ios">
-                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                    <h4 style="font-size:16px; font-weight:700;">Bản Hack ESign (IOS)</h4>
-                    <span style="color:var(--cyan); font-family:monospace; font-weight:bold; font-size:15px;">30.000đ</span>
-                </div>
-                <p style="font-size:12px; color:var(--text-sub); margin-bottom:10px;">Hỗ trợ menu chức năng VIP, cài đặt qua ESign hoặc Scarlet.</p>
-                <button class="btn-cyan" style="background: linear-gradient(135deg, var(--cyan), #00b0ff);" onclick="veShopMua()"><i class="fas fa-shopping-cart"></i> MUA BÊN TRANG CHỦ</button>
+                <button class="btn-cyan" style="background: linear-gradient(135deg, var(--cyan), #00b0ff);" onclick="window.open('LINK_DRIVE_CUA_BAN_O_DAY', '_blank')"><i class="fas fa-download"></i> TẢI XUỐNG NGAY</button>
             </div>
 
         </div>
@@ -127,39 +97,28 @@
     </div>
 
     <script>
-        // Lấy dữ liệu từ thanh địa chỉ URL mà web chính bắn qua
         const urlParams = new URLSearchParams(window.location.search);
         const userName = urlParams.get('name');
         const userBal = urlParams.get('bal');
         const hwid = urlParams.get('hwid');
 
-        // Logic bảo mật cơ bản: Phải có tên và ID thì mới cho xem, nếu không sẽ bị đuổi về
         if (userName !== null && hwid !== null) {
-            // Cập nhật tên
             document.getElementById('ui-username').innerText = userName;
-            // Cập nhật số dư tiền
             document.getElementById('ui-balance').innerText = Number(userBal).toLocaleString() + " VNĐ";
         } else {
             alert("⚠️ Truy cập bị từ chối! Vui lòng vào từ nút [Mua File Hỗ Trợ] trên Trang Chủ Shop.");
-            window.location.href = "http://shopfaros.site"; 
+            // CHÚ Ý: Đổi link này thành web chính của bạn để đá văng người lạ về đúng chỗ
+            window.location.href = "http://shopfaros.page.gd"; 
         }
 
-        // Logic đổi màu chuyển Tab (ADR - IOS)
         function switchOS(os) {
-            // Xóa hiệu ứng của cả 2 tab
             document.getElementById('btn-adr').classList.remove('active');
             document.getElementById('btn-ios').classList.remove('active');
             document.getElementById('content-adr').classList.remove('active');
             document.getElementById('content-ios').classList.remove('active');
 
-            // Bật hiệu ứng cho tab vừa chọn
             document.getElementById('btn-' + os).classList.add('active');
             document.getElementById('content-' + os).classList.add('active');
-        }
-
-        // Thông báo khi khách bấm nút Mua trên GitHub
-        function veShopMua() {
-            alert("Để đảm bảo an toàn giao dịch, tính năng thanh toán chỉ hoạt động tại Shop chính.\n\nVui lòng quay lại tab http://shopfaros.site để mua hàng nhé!");
         }
     </script>
 </body>
