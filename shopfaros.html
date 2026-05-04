@@ -1,111 +1,3 @@
-<?php
-// =====================================================================
-// PHẦN 1: BACKEND PHP KẾT NỐI FIREBASE ĐỒNG BỘ 100%
-// =====================================================================
-$firebase_url = "https://shopfarossite-default-rtdb.firebaseio.com";
-
-function fb_request($path, $method = 'GET', $data = null) {
-    global $firebase_url;
-    $ch = curl_init($firebase_url . $path . '.json');
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    if ($method != 'GET') {
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-        if ($data !== null) curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    }
-    $res = curl_exec($ch); curl_close($ch);
-    return json_decode($res, true);
-}
-
-if (isset($_GET['action'])) {
-    header('Content-Type: application/json');
-    $action = $_GET['action']; $hwid = $_GET['hwid'] ?? ''; $ip = $_SERVER['REMOTE_ADDR'];
-    if(empty($hwid)) { echo json_encode(['error' => 'No HWID']); exit; }
-
-    if ($action == 'sync_user') {
-        $user = fb_request('/users/' . $hwid);
-        if (!$user) {
-            $user = ['balance' => 0, 'total_spent' => 0, 'total_deposit' => 0, 'ip' => $ip, 'created_at' => date('Y-m-d H:i:s')];
-            fb_request('/users/' . $hwid, 'PUT', $user);
-        } else { fb_request('/users/' . $hwid . '/ip', 'PUT', $ip); }
-        $user['history'] = fb_request('/users/' . $hwid . '/history') ?? [];
-        $user['keys'] = fb_request('/users/' . $hwid . '/keys') ?? [];
-        echo json_encode(['success' => true, 'user' => $user]); exit;
-    }
-
-    if ($action == 'buy') {
-        $data = json_decode(file_get_contents('php://input'), true);
-        $price = (int)$data['price']; $app_name = $data['app_name']; $days = $data['days']; $app_id = $data['app_id'] ?? '';
-
-        $user = fb_request('/users/' . $hwid);
-        if ($user['balance'] >= $price) {
-            
-            // RÚT KEY TỪ KHO ADMIN
-            $stock = fb_request('/products/' . $app_id . '/stock/' . $days);
-            
-            if (!$stock || count($stock) == 0) {
-                echo json_encode(['success' => false, 'msg' => 'Hết hàng! Kho không còn Key cho gói này.']); exit;
-            }
-            
-            $key_id = array_key_first($stock);
-            $gen_key = $stock[$key_id];
-            
-            fb_request('/products/' . $app_id . '/stock/' . $days . '/' . $key_id, 'DELETE');
-
-            $new_balance = $user['balance'] - $price; $new_spent = ($user['total_spent'] ?? 0) + $price;
-            fb_request('/users/' . $hwid . '/balance', 'PUT', $new_balance);
-            fb_request('/users/' . $hwid . '/total_spent', 'PUT', $new_spent);
-
-            fb_request('/users/' . $hwid . '/keys/' . time(), 'PUT', ['app' => $app_name, 'days' => $days, 'key' => $gen_key, 'price' => $price, 'time' => date('d/m H:i')]);
-            fb_request('/users/' . $hwid . '/history/' . time(), 'PUT', ['type' => 'buy', 'desc' => "Mua $app_name [$days ngày]", 'amount' => $price, 'time' => date('d/m H:i')]);
-
-            echo json_encode(['success' => true, 'new_balance' => $new_balance, 'key' => $gen_key]);
-        } else echo json_encode(['success' => false, 'msg' => 'Số dư không đủ!']);
-        exit;
-    }
-
-    if ($action == 'deposit') {
-        $data = json_decode(file_get_contents('php://input'), true); $amount = (int)$data['amount'];
-        fb_request('/users/' . $hwid . '/history/' . time(), 'PUT', ['type' => 'deposit', 'desc' => 'Tạo lệnh nạp VietQR', 'amount' => $amount, 'status' => 'PENDING', 'time' => date('d/m H:i')]);
-        fb_request('/card_requests/' . time(), 'PUT', ['user' => $hwid, 'type' => 'Bank Transfer', 'amount' => $amount, 'status' => 'pending']);
-        echo json_encode(['success' => true]); exit;
-    }
-
-    if ($action == 'charge_card') {
-        $data = json_decode(file_get_contents('php://input'), true);
-        $telco = $data['telco']; $amount = $data['amount']; 
-        $serial = $data['serial']; $pin = $data['pin'];
-
-        // ĐÃ ĐIỀN API TỪ ẢNH CỦA BÁC
-        $partner_id = '4154523943';
-        $partner_key = 'd5253e4efad57050f78d3abf59dc28ef';
-        
-        $request_id = time() . '_' . $hwid; 
-        $sign = md5($partner_key . $pin . $serial); 
-
-        $url = "https://gachthefast.com/chargingws/v2";
-        $post_data = [
-            'telco' => $telco, 'code' => $pin, 'serial' => $serial, 
-            'amount' => $amount, 'request_id' => $request_id, 
-            'partner_id' => $partner_id, 'sign' => $sign, 'command' => 'charging'
-        ];
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_data));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        $response = curl_exec($ch); curl_close($ch);
-
-        fb_request('/users/' . $hwid . '/history/' . time(), 'PUT', [
-            'type' => 'deposit_card', 'desc' => "Nạp thẻ $telco ".number_format($amount)."đ", 
-            'amount' => $amount, 'status' => 'PENDING', 'request_id' => $request_id, 'time' => date('d/m H:i')
-        ]);
-
-        echo json_encode(['success' => true, 'msg' => 'Đã gửi thẻ tự động lên hệ thống. Vui lòng chờ 1-3 phút để cộng tiền!']); exit;
-    }
-}
-?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -287,7 +179,7 @@ if (isset($_GET['action'])) {
     </div>
 
     <script>
-        // CONFIG FIREBASE MỚI
+        // CONFIG FIREBASE
         const firebaseConfig = {
           apiKey: "AIzaSyD7UvVO5G5EgCwoYd-VgJYXylUw1nOGSlI",
           authDomain: "shopfarossite.firebaseapp.com",
@@ -299,7 +191,6 @@ if (isset($_GET['action'])) {
           measurementId: "G-1TP0XMSVVL"
         };
         
-        // Khởi tạo theo chuẩn Firebase v8 tương thích với code cũ
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
@@ -350,7 +241,6 @@ if (isset($_GET['action'])) {
                 pinState = 'LOGIN'; lockTitle.innerText = "NHẬP MÃ PIN"; lockSub.innerText = "Nhập mã PIN để vào hệ thống";
             }
             document.getElementById('ui-username').innerText = myUserName;
-            document.getElementById('ui-hwid').innerText = myHWID;
         }
 
         function updateDots() {
@@ -509,9 +399,15 @@ if (isset($_GET['action'])) {
             if(!currentPkg || !myData) return;
             if(myData.balance < currentPkg.price) { alert("Tài khoản không đủ tiền! Vui lòng nạp thêm."); switchTab('deposit'); return; }
             const btn = document.getElementById('btn-buy'); btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ĐANG XỬ LÝ...';
-            let res = await fetch(`?action=buy&hwid=${myHWID}`, { method: 'POST', body: JSON.stringify({ price: currentPkg.price, app_name: currentPkg.app, app_id: currentPkg.id, days: currentPkg.days }) });
-            let data = await res.json();
-            if(data.success) { alert("✅ Mua thành công!\nMã Key của bạn: " + data.key); switchTab('profile'); backToApps(); } else { alert(data.msg); }
+            
+            // LƯU Ý: Phím fetch bên dưới sẽ lỗi vì không còn Backend PHP
+            try {
+                let res = await fetch(`?action=buy&hwid=${myHWID}`, { method: 'POST', body: JSON.stringify({ price: currentPkg.price, app_name: currentPkg.app, app_id: currentPkg.id, days: currentPkg.days }) });
+                let data = await res.json();
+                if(data.success) { alert("✅ Mua thành công!\nMã Key của bạn: " + data.key); switchTab('profile'); backToApps(); } else { alert(data.msg); }
+            } catch (err) {
+                alert("Lỗi: Không tìm thấy server xử lý (Backend PHP đã bị gỡ).");
+            }
             btn.innerHTML = '<i class="fas fa-shopping-cart"></i> THANH TOÁN GÓI ĐANG CHỌN';
         }
 
@@ -524,18 +420,23 @@ if (isset($_GET['action'])) {
 
             const btn = document.getElementById('btn-charge'); btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ĐANG GỬI THẺ...';
             
-            let res = await fetch(`?action=charge_card&hwid=${myHWID}`, {
-                method: 'POST',
-                body: JSON.stringify({ telco, amount, serial, pin })
-            });
-            let data = await res.json();
-            
-            if(data.success) {
-                alert("✅ " + data.msg);
-                document.getElementById('c-serial').value = ''; document.getElementById('c-pin').value = '';
-                switchTab('home');
-            } else {
-                alert("❌ Có lỗi xảy ra, thử lại sau!");
+            // LƯU Ý: Phím fetch bên dưới sẽ lỗi vì không còn Backend PHP
+            try {
+                let res = await fetch(`?action=charge_card&hwid=${myHWID}`, {
+                    method: 'POST',
+                    body: JSON.stringify({ telco, amount, serial, pin })
+                });
+                let data = await res.json();
+                
+                if(data.success) {
+                    alert("✅ " + data.msg);
+                    document.getElementById('c-serial').value = ''; document.getElementById('c-pin').value = '';
+                    switchTab('home');
+                } else {
+                    alert("❌ Có lỗi xảy ra, thử lại sau!");
+                }
+            } catch (err) {
+                alert("Lỗi: Không tìm thấy server xử lý (Backend PHP đã bị gỡ).");
             }
             btn.innerHTML = '<i class="fas fa-paper-plane"></i> GỬI THẺ LÊN HỆ THỐNG';
         }
