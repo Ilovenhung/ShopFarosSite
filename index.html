@@ -413,9 +413,26 @@
 
         function playFinalSound() { playTickSound(1000); setTimeout(() => playTickSound(1200), 100); }
 
+        // MỞ GAME TRỰC TIẾP (Đã thay thế theo mã mới, hỗ trợ iOS/Android)
         function launchGame(type) {
-            const pkg = type === 1 ? "com.dts.freefireth" : "com.dts.freefiremax";
-            window.location.href = `intent://#Intent;package=${pkg};end`;
+            const packageName = type === 1 ? "com.dts.freefireth" : "com.dts.freefiremax";
+            const urlScheme = type === 1 ? "freefire" : "freefiremax";
+            
+            // Âm thanh click
+            playTickSound(1100);
+            setTimeout(() => playTickSound(1400), 50);
+
+            const ua = navigator.userAgent.toLowerCase();
+            const isAndroid = ua.includes('android');
+            const isIOS = ua.includes('iphone') || ua.includes('ipad');
+            
+            if (isAndroid) {
+                window.location.href = `intent://#Intent;scheme=${urlScheme};package=${packageName};end`;
+            } else if (isIOS) {
+                window.location.href = `${urlScheme}://`;
+            } else {
+                alert('Vui lòng mở game trên thiết bị di động.');
+            }
         }
 
         // Stats Update
