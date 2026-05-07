@@ -3,461 +3,472 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TURBO HEAD - FAROS MATRIX PURPLE</title>
+    <title>Shop FAROS - Bảng Giá File</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@500;700&display=swap');
-        
-        :root {
-            --red-primary: #7B2CBF;
-            --red-dark: #4A1769;
-            --red-light: #C77DFF;
-            --red-gradient-start: #9D4EDD;
-            --red-gradient-end: #5A189A;
-            --text-color: #FFFFFF;
-            --red-background-deep: #2A0A3D;
-        }
-        
-        body {
-            font-family: 'Rajdhani', sans-serif;
-            margin: 0; padding: 0;
-            background-color: #000;
-            color: var(--text-color);
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        /* MATRIX RAIN BACKGROUND */
-        #matrixCanvas {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: -1;
-            opacity: 0.45;
-            pointer-events: none;
-        }
-
-        .container {
-            max-width: 380px;
-            margin: 25px auto;
-            background: rgba(15, 5, 25, 0.92);
-            border-radius: 18px;
-            padding: 20px;
-            box-shadow: 0 0 20px var(--red-primary), 0 0 40px rgba(123, 44, 191, 0.5);
-            border: 2px solid var(--red-primary);
-            backdrop-filter: blur(10px);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .container::before {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: linear-gradient(to bottom right, transparent 45%, var(--red-primary) 50%, transparent 55%);
-            opacity: 0.25;
-            animation: scan 6s linear infinite;
-            z-index: -1;
-        }
-        
-        @keyframes scan { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .header {
-            text-align: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--red-primary);
-        }
-        
-        .header h1 {
-            font-family: 'Orbitron', sans-serif;
-            color: transparent;
-            background: linear-gradient(90deg, var(--red-primary), var(--red-light));
-            -webkit-background-clip: text;
-            background-clip: text;
-            margin: 0;
-            font-size: 28px;
-            letter-spacing: 2px;
-            text-shadow: 0 0 15px rgba(199, 125, 255, 0.8);
-        }
-        
-        .header p { color: var(--red-light); margin: 8px 0 0; font-size: 13px; font-weight: bold; }
-
-        /* PERFORMANCE CARD CÂN ĐỐI */
-        .performance-card {
-            padding: 20px 0;
-            margin-bottom: 25px;
-            background: rgba(15, 5, 25, 0.7);
-            border-radius: 12px;
-            border: 1px solid var(--red-primary);
-            box-shadow: 0 0 10px rgba(123, 44, 191, 0.3);
-        }
-
-        .performance-stats {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-        }
-
-        .stat-circle-container {
-            position: relative;
-            width: 80px; height: 80px;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-        }
-
-        .stat-circle-container svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
-        .stat-circle-container circle { fill: none; stroke-width: 6; stroke-linecap: round; }
-        .bg-circle { stroke: rgba(255, 255, 255, 0.15); }
-        .progress-circle { stroke-dasharray: 251.2; transition: all 1.5s ease-out; }
-
-        .stat-circle-text { position: absolute; font-size: 16px; font-weight: bold; color: var(--text-color); z-index: 10; }
-        .stat-circle-label { position: absolute; font-size: 10px; color: var(--red-light); margin-top: 25px; font-weight: bold; }
-
-        /* FEATURE ITEMS */
-        .feature {
-            background: rgba(123, 44, 191, 0.12);
-            margin: 10px 0;
-            padding: 12px 15px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 4px solid var(--red-primary);
-            transition: 0.3s;
-        }
-        .feature:hover { background: rgba(123, 44, 191, 0.2); }
-        .feature-name { font-weight: bold; font-size: 16px; color: var(--red-light); text-shadow: 0 0 5px var(--red-primary); }
-        .feature-desc { font-size: 11px; color: #aaa; margin-top: 2px; }
-        .vip-badge { background: #ffd700; color: #000; font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 6px; box-shadow: 0 0 8px #ffd700; }
-
-        /* TOGGLE SWITCH */
-        .toggle-switch { position: relative; width: 55px; height: 28px; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #333; transition: .4s; border-radius: 28px; }
-        .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px; background: #fff; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background: linear-gradient(90deg, #8B00FF, #C084FC); box-shadow: 0 0 10px var(--red-primary); }
-        input:checked + .slider:before { transform: translateX(27px); }
-
-        /* --- SCRIPT RUN PANEL (NÂNG CẤP) --- */
-        .script-panel {
-            background: #0a0a0a;
-            border: 1.5px solid #00ff41;
-            border-radius: 16px;
-            padding: 18px;
-            margin: 25px 0;
-            box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
-        }
-
-        .script-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .run-btn {
-            padding: 10px 20px;
-            background: #ff4400; /* Mặc định cam đỏ */
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            font-family: 'Rajdhani';
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            font-size: 13px;
-        }
-
-        .run-btn.running { background: #0099ff; cursor: wait; }
-        .run-btn.success { background: #00cc00; box-shadow: 0 0 15px #00ff41; }
-
-        .log-container { height: 120px; overflow-y: auto; margin-bottom: 15px; scrollbar-width: none; }
-        .log-container::-webkit-scrollbar { display: none; }
-
-        .log {
-            font-family: monospace;
-            color: #00ff88;
-            font-size: 12px;
-            line-height: 1.6;
-            margin-bottom: 4px;
-            display: none; /* Hiện từng dòng */
-        }
-
-        .script-buttons { display: flex; gap: 12px; margin-top: 5px; }
-        .btn-fire { flex: 1; padding: 14px; border: none; border-radius: 12px; font-weight: bold; font-size: 15px; color: white; cursor: pointer; transition: 0.2s; }
-        .btn-fire:disabled { opacity: 0.4; cursor: not-allowed; }
-        .btn-free  { background: linear-gradient(90deg, #ff6600, #ff2200); }
-        .btn-max   { background: linear-gradient(90deg, #0099ff, #0066ff); }
-
-        .footer {
-            text-align: center;
-            font-size: 11px;
-            color: #777;
-            margin-top: 20px;
-            line-height: 1.6;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; }
+        .smooth-transition { transition: all 0.3s ease-in-out; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .price-box { cursor: pointer; transition: all 0.2s; }
+        .price-box:hover { transform: translateY(-2px); border-color: #3b82f6; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
     </style>
 </head>
-<body onload="initApp()">
+<body class="text-gray-800">
 
-    <canvas id="matrixCanvas"></canvas>
-
-    <div class="container">
-        <div class="header">
-            <h1 class="glitch">Turbo Head</h1>
-            <p>Zalo: 0389148483</p>
-            <p>TikTok: faros.lovetiktok</p>
+    <header class="bg-blue-600 text-white p-4 shadow-md sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold italic tracking-wide">Shop FAROS</h1>
+            <a href="https://zalo.me/0389148483" target="_blank" class="bg-blue-800 px-4 py-2 rounded-full text-sm font-semibold shadow-inner hover:bg-blue-700 transition cursor-pointer">
+                <i class="fas fa-headset mr-2"></i>Hỗ trợ: 0389148483
+            </a>
         </div>
+    </header>
+
+    <main class="container mx-auto py-10 px-4 max-w-4xl">
         
-        <div class="performance-card">
-            <div class="performance-stats">
-                <div class="stat-circle-container">
-                    <svg viewBox="0 0 100 100">
-                        <circle class="bg-circle" cx="50" cy="50" r="40"></circle>
-                        <circle id="cpu-progress" class="progress-circle" cx="50" cy="50" r="40"></circle>
-                    </svg>
-                    <span class="stat-circle-text" id="cpu-percent">0%</span>
-                    <span class="stat-circle-label">CPU</span>
-                </div>
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-extrabold mb-3 text-gray-900">CHỌN HỆ ĐIỀU HÀNH CỦA BẠN</h2>
+            <p class="text-gray-500">Vui lòng chọn hệ điều hành để xem danh sách sản phẩm và bảng giá chi tiết.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            <button id="btn-adr" onclick="showSection('adr-section')" class="bg-white border-2 border-gray-200 rounded-2xl p-8 shadow-sm smooth-transition transform hover:-translate-y-1 group">
+                <i id="icon-adr" class="fab fa-android text-6xl text-green-500 mb-4 group-hover:scale-110 smooth-transition"></i>
+                <h3 class="text-3xl font-black text-gray-800">ANDROID (ADR)</h3>
+                <p class="text-gray-500 mt-2">Data, Module, Proxy,....</p>
+            </button>
+
+            <button id="btn-ios" onclick="showSection('ios-section')" class="bg-white border-2 border-gray-200 rounded-2xl p-8 shadow-sm smooth-transition transform hover:-translate-y-1 group">
+                <i id="icon-ios" class="fab fa-apple text-6xl text-green-500 mb-4 group-hover:scale-110 smooth-transition"></i>
+                <h3 class="text-3xl font-black text-gray-800">APPLE (iOS)</h3>
+                <p class="text-gray-500 mt-2">Config, Aim, Fluorite, Migul...</p>
+            </button>
+        </div>
+
+        <div id="adr-section" class="hidden smooth-transition">
+            <h3 class="text-2xl font-bold mb-6 border-l-4 border-green-500 pl-3 uppercase">Danh mục Android</h3>
+            <div class="space-y-4">
                 
-                <div class="stat-circle-container">
-                    <svg viewBox="0 0 100 100">
-                        <circle class="bg-circle" cx="50" cy="50" r="40"></circle>
-                        <circle id="ram-progress" class="progress-circle" cx="50" cy="50" r="40"></circle>
-                    </svg>
-                    <span class="stat-circle-text" id="ram-percent">0%</span>
-                    <span class="stat-circle-label">RAM</span>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <button onclick="togglePricing('price-adr-keotam')" class="w-full flex justify-between items-center p-5 hover:bg-gray-50">
+                        <div class="flex items-center text-lg font-bold"><i class="fas fa-crosshairs text-green-500 w-8"></i> Hỗ trợ kéo tâm</div>
+                        <i class="fas fa-chevron-down text-gray-400"></i>
+                    </button>
+                    <div id="price-adr-keotam" class="hidden bg-gray-50 border-t border-gray-200 p-5">
+                        <p class="text-sm text-gray-500 mb-3">* Click vào gói để thanh toán</p>
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                            <div onclick="openPaymentModal('Kéo Tâm ADR V0', '50.000đ')" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 0</span><span class="text-red-500">50K</span></div>
+                            <div onclick="openPaymentModal('Kéo Tâm ADR V1', '100.000đ')" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 1</span><span class="text-red-500">100K</span></div>
+                            <div onclick="openPaymentModal('Kéo Tâm ADR V2', '200.000đ')" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 2</span><span class="text-red-500">200K</span></div>
+                            <div onclick="openPaymentModal('Kéo Tâm ADR V3', '300.000đ')" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 3</span><span class="text-red-500">300K</span></div>
+                            <div onclick="openPaymentModal('Kéo Tâm ADR V4', '400.000đ')" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 4</span><span class="text-red-500">400K</span></div>
+                            <div onclick="openPaymentModal('Kéo Tâm ADR V5', '500.000đ')" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 5</span><span class="text-red-500">500K</span></div>
+                            <div onclick="openPaymentModal('Kéo Tâm ADR V6', '600.000đ')" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 6</span><span class="text-red-500">600K</span></div>
+                            <div onclick="openPaymentModal('Kéo Tâm ADR V7', '700.000đ')" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 7</span><span class="text-red-500">700K</span></div>
+                            <div onclick="openPaymentModal('Kéo Tâm ADR V8', '800.000đ')" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 8</span><span class="text-red-500">800K</span></div>
+                            <div onclick="openPaymentModal('Kéo Tâm ADR V9', '900.000đ')" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 9</span><span class="text-red-500">900K</span></div>
+                            <div onclick="openPaymentModal('Kéo Tâm ADR V10', '1.000.000đ')" class="price-box bg-white p-3 rounded border border-green-500 text-center"><span class="block font-bold text-green-600">Ver 10</span><span class="text-red-600 font-bold">1M</span></div>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="stat-circle-container">
-                    <svg viewBox="0 0 100 100">
-                        <circle class="bg-circle" cx="50" cy="50" r="40"></circle>
-                        <circle id="network-progress" class="progress-circle" cx="50" cy="50" r="40"></circle>
-                    </svg>
-                    <span class="stat-circle-text" id="network-percent">0%</span>
-                    <span class="stat-circle-label">NETWORK</span>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <button onclick="togglePricing('price-adr-module')" class="w-full flex justify-between items-center p-5 hover:bg-gray-50">
+                        <div class="flex items-center text-lg font-bold"><i class="fas fa-microchip text-purple-500 w-8"></i> Module (No Root)</div>
+                        <i class="fas fa-chevron-down text-gray-400"></i>
+                    </button>
+                    <div id="price-adr-module" class="hidden bg-gray-50 border-t border-gray-200 p-5">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div onclick="openPaymentModal('Module ADR V1', '50.000đ')" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 1</span><span class="text-red-500">50K</span></div>
+                            <div onclick="openPaymentModal('Module ADR V2', '150.000đ')" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 2</span><span class="text-red-500">150K</span></div>
+                            <div onclick="openPaymentModal('Module ADR V3', '300.000đ')" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 3</span><span class="text-red-500">300K</span></div>
+                            <div onclick="openPaymentModal('Module ADR V4', '400.000đ')" class="price-box bg-white p-3 rounded border border-purple-500 text-center"><span class="block font-bold text-purple-600">Ver 4</span><span class="text-red-600 font-bold">400K</span></div>
+                        </div>
+                    </div>
                 </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <button onclick="togglePricing('price-adr-proxy')" class="w-full flex justify-between items-center p-5 hover:bg-gray-50">
+                        <div class="flex items-center text-lg font-bold"><i class="fas fa-network-wired text-blue-500 w-8"></i> Proxy</div>
+                        <i class="fas fa-chevron-down text-gray-400"></i>
+                    </button>
+                    <div id="price-adr-proxy" class="hidden bg-gray-50 border-t border-gray-200 p-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="border rounded-lg bg-white overflow-hidden">
+                                <div class="bg-blue-100 text-blue-800 font-bold p-2 text-center">Data Kernel</div>
+                                <div class="p-4 grid grid-cols-3 gap-2">
+                                    <div onclick="openPaymentModal('Proxy Data Kernel V1', '50.000đ')" class="price-box text-center border p-2 rounded"><span class="block text-sm">V1</span><span class="text-red-500 font-bold">50K</span></div>
+                                    <div onclick="openPaymentModal('Proxy Data Kernel V2', '100.000đ')" class="price-box text-center border p-2 rounded"><span class="block text-sm">V2</span><span class="text-red-500 font-bold">100K</span></div>
+                                    <div onclick="openPaymentModal('Proxy Data Kernel V3', '150.000đ')" class="price-box text-center border p-2 rounded"><span class="block text-sm">V3</span><span class="text-red-500 font-bold">150K</span></div>
+                                </div>
+                            </div>
+                            <div class="border rounded-lg bg-white overflow-hidden">
+                                <div class="bg-orange-100 text-orange-800 font-bold p-2 text-center">Coreboost</div>
+                                <div class="p-4 grid grid-cols-3 gap-2">
+                                    <div onclick="openPaymentModal('Proxy Coreboost V1', '50.000đ')" class="price-box text-center border p-2 rounded"><span class="block text-sm">V1</span><span class="text-red-500 font-bold">50K</span></div>
+                                    <div onclick="openPaymentModal('Proxy Coreboost V2', '100.000đ')" class="price-box text-center border p-2 rounded"><span class="block text-sm">V2</span><span class="text-red-500 font-bold">100K</span></div>
+                                    <div onclick="openPaymentModal('Proxy Coreboost V3', '150.000đ')" class="price-box text-center border p-2 rounded"><span class="block text-sm">V3</span><span class="text-red-500 font-bold">150K</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <button onclick="togglePricing('price-adr-data')" class="w-full flex justify-between items-center p-5 hover:bg-gray-50">
+                        <div class="flex items-center text-lg font-bold"><i class="fas fa-database text-orange-500 w-8"></i> Data (Ăn sâu vào máy)</div>
+                        <i class="fas fa-chevron-down text-gray-400"></i>
+                    </button>
+                    <div id="price-adr-data" class="hidden bg-gray-50 border-t border-gray-200 p-5">
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                            <div onclick="openPaymentModal('Data Ăn Sâu V1', '100.000đ')" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 1</span><span class="text-red-500">100K</span></div>
+                            <div onclick="openPaymentModal('Data Ăn Sâu V2', '200.000đ')" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 2</span><span class="text-red-500">200K</span></div>
+                            <div onclick="openPaymentModal('Data Ăn Sâu V3', '300.000đ')" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 3</span><span class="text-red-500">300K</span></div>
+                            <div onclick="openPaymentModal('Data Ăn Sâu V4', '400.000đ')" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 4</span><span class="text-red-500">400K</span></div>
+                            <div onclick="openPaymentModal('Data Ăn Sâu V5', '500.000đ')" class="price-box bg-white p-3 rounded border border-orange-500 text-center"><span class="block font-bold text-orange-600">Ver 5 (MAX)</span><span class="text-red-600 font-bold">500K</span></div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-
-            <div style="margin-top: 20px;">
-    <div class="feature">
-        <div class="feature-info">
-            <div class="feature-name">AimLock Plus <span class="vip-badge">VIP</span></div>
-            <div class="feature-desc">Kích Hoạt AimLock</div>
         </div>
-        <label class="toggle-switch">
-            <input type="checkbox">
-            <span class="slider"></span>
-        </label>
-    </div>
 
-    <div class="feature">
-        <div class="feature-info">
-            <div class="feature-name">Nhẹ Tâm Plus <span class="vip-badge">VIP</span></div>
-            <div class="feature-desc">Giúp nhẹ tâm bám đầu</div>
+        <div id="ios-section" class="hidden smooth-transition">
+            <h3 class="text-2xl font-bold mb-6 border-l-4 border-gray-800 pl-3 uppercase">Danh mục iOS</h3>
+            <div class="space-y-4">
+                
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <button onclick="togglePricing('price-ios-config')" class="w-full flex justify-between items-center p-5 hover:bg-gray-50">
+                        <div class="flex items-center text-lg font-bold"><i class="fas fa-file-code text-blue-500 w-8"></i> Faulsweep Smooth & Config App</div>
+                        <i class="fas fa-chevron-down text-gray-400"></i>
+                    </button>
+                    <div id="price-ios-config" class="hidden bg-gray-50 border-t border-gray-200 p-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-bold text-gray-700 mb-3 border-b pb-1">Faulsweep Smooth</h4>
+                                <div class="space-y-2">
+                                    <div onclick="openPaymentModal('Faulsweep Smooth v1', '50.000đ')" class="price-box bg-white p-3 rounded border flex justify-between items-center">
+                                        <span class="font-bold text-sm">Faulsweep Smooth v1</span><span class="text-red-500 font-bold">50K</span>
+                                    </div>
+                                    <div onclick="openPaymentModal('Faulsweep Smooth v2', '100.000đ')" class="price-box bg-white p-3 rounded border flex justify-between items-center">
+                                        <span class="font-bold text-sm">Faulsweep Smooth v2</span><span class="text-red-500 font-bold">100K</span>
+                                    </div>
+                                    <div onclick="openPaymentModal('Faulsweep Smooth v3', '150.000đ')" class="price-box bg-white p-3 rounded border flex justify-between items-center">
+                                        <span class="font-bold text-sm">Faulsweep Smooth v3</span><span class="text-red-500 font-bold">150K</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-700 mb-3 border-b pb-1">Config + App Hỗ Trợ</h4>
+                                <div class="space-y-2">
+                                    <div onclick="openPaymentModal('Config + App Hỗ Trợ v1', '100.000đ')" class="price-box bg-white p-3 rounded border flex justify-between items-center">
+                                        <span class="font-bold text-sm">Config + App Hỗ Trợ v1</span><span class="text-red-500 font-bold">100K</span>
+                                    </div>
+                                    <div onclick="openPaymentModal('Config + App Hỗ Trợ v2', '200.000đ')" class="price-box bg-white p-3 rounded border flex justify-between items-center">
+                                        <span class="font-bold text-sm">Config + App Hỗ Trợ v2</span><span class="text-red-500 font-bold">200K</span>
+                                    </div>
+                                    <div onclick="openPaymentModal('Config + App Hỗ Trợ v3', '300.000đ')" class="price-box bg-white p-3 rounded border flex justify-between items-center">
+                                        <span class="font-bold text-sm">Config + App Hỗ Trợ v3</span><span class="text-red-500 font-bold">300K</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <button onclick="togglePricing('price-ios-aim')" class="w-full flex justify-between items-center p-5 hover:bg-gray-50">
+                        <div class="flex items-center text-lg font-bold"><i class="fas fa-crosshairs text-red-500 w-8"></i> Aim Neck / Aim Body / Aim Drag</div>
+                        <i class="fas fa-chevron-down text-gray-400"></i>
+                    </button>
+                    <div id="price-ios-aim" class="hidden bg-gray-50 border-t border-gray-200 p-5">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div onclick="openPaymentModal('iOS - Aim Neck', '150.000đ')" class="price-box bg-white p-4 rounded-lg shadow-sm border border-gray-200 text-center">
+                                <h5 class="text-lg font-bold text-gray-800 mb-1">Aim Neck</h5>
+                                <span class="text-xl font-black text-red-500">150K</span>
+                            </div>
+                            <div onclick="openPaymentModal('iOS - Aim Body', '150.000đ')" class="price-box bg-white p-4 rounded-lg shadow-sm border border-gray-200 text-center">
+                                <h5 class="text-lg font-bold text-gray-800 mb-1">Aim Body</h5>
+                                <span class="text-xl font-black text-red-500">150K</span>
+                            </div>
+                            <div onclick="openPaymentModal('iOS - Aim Drag', '150.000đ')" class="price-box bg-white p-4 rounded-lg shadow-sm border border-gray-200 text-center">
+                                <h5 class="text-lg font-bold text-gray-800 mb-1">Aim Drag</h5>
+                                <span class="text-xl font-black text-red-500">150K</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <button onclick="togglePricing('price-ios-fluorite')" class="w-full flex justify-between items-center p-5 hover:bg-indigo-50">
+                        <div class="flex items-center text-lg font-bold text-indigo-700"><i class="fas fa-gem text-indigo-500 w-8"></i> Menu Fluorite</div>
+                        <i class="fas fa-chevron-down text-gray-400"></i>
+                    </button>
+                    <div id="price-ios-fluorite" class="hidden bg-indigo-50 border-t border-indigo-100 p-5">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div onclick="openPaymentModal('Fluorite - 1 Ngày', '100.000đ')" class="price-box bg-white p-4 rounded-lg border border-indigo-200 text-center hover:border-indigo-500">
+                                <h5 class="text-xl font-bold text-gray-800 mb-2">1 Ngày</h5>
+                                <span class="text-2xl font-black text-red-500">100K</span>
+                            </div>
+                            <div onclick="openPaymentModal('Fluorite - 7 Ngày', '250.000đ')" class="price-box bg-white p-4 rounded-lg border border-indigo-200 text-center hover:border-indigo-500">
+                                <h5 class="text-xl font-bold text-gray-800 mb-2">7 Ngày</h5>
+                                <span class="text-2xl font-black text-red-500">250K</span>
+                            </div>
+                            <div onclick="openPaymentModal('Fluorite - 31 Ngày', '400.000đ')" class="price-box bg-white p-4 rounded-lg border-2 border-indigo-500 text-center relative hover:border-indigo-600">
+                                <span class="absolute -top-3 right-3 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold">VIP</span>
+                                <h5 class="text-xl font-bold text-gray-800 mb-2">31 Ngày</h5>
+                                <span class="text-2xl font-black text-red-500">400K</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <button onclick="togglePricing('price-ios-migul')" class="w-full flex justify-between items-center p-5 hover:bg-orange-50">
+                        <div class="flex items-center text-lg font-bold text-orange-700"><i class="fas fa-crown text-orange-500 w-8"></i> Migul Pro</div>
+                        <i class="fas fa-chevron-down text-gray-400"></i>
+                    </button>
+                    <div id="price-ios-migul" class="hidden bg-orange-50 border-t border-orange-100 p-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div onclick="openPaymentModal('Migul Pro - 7 Ngày', '250.000đ')" class="price-box bg-white p-4 rounded-lg border border-orange-200 text-center hover:border-orange-500">
+                                <h5 class="text-xl font-bold text-gray-800 mb-2">7 Ngày</h5>
+                                <span class="text-2xl font-black text-red-500">250K</span>
+                            </div>
+                            <div onclick="openPaymentModal('Migul Pro - 31 Ngày', '450.000đ')" class="price-box bg-white p-4 rounded-lg border-2 border-orange-500 text-center relative hover:border-orange-600">
+                                <span class="absolute -top-3 right-3 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold">BEST CHOICE</span>
+                                <h5 class="text-xl font-bold text-gray-800 mb-2">31 Ngày</h5>
+                                <span class="text-2xl font-black text-red-500">450K</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
-        <label class="toggle-switch">
-            <input type="checkbox">
-            <span class="slider"></span>
-        </label>
-    </div>
 
-    <div class="feature">
-        <div class="feature-info">
-            <div class="feature-name">FIX RUNG <span class="vip-badge">VIP</span></div>
-            <div class="feature-desc">Fix Rung Tâm khi bắn</div>
-        </div>
-        <label class="toggle-switch">
-            <input type="checkbox">
-            <span class="slider"></span>
-        </label>
-    </div>
+    </main>
 
-    <div class="feature">
-        <div class="feature-info">
-            <div class="feature-name">Sensivity Pro <span class="vip-badge">VIP</span></div>
-            <div class="feature-desc">Giúp Nhẹ Tâm Nhạy Màn</div>
-        </div>
-        <label class="toggle-switch">
-            <input type="checkbox">
-            <span class="slider"></span>
-        </label>
-    </div>
-
-    <div class="feature">
-        <div class="feature-info">
-            <div class="feature-name">Bám Đầu <span class="vip-badge">VIP</span></div>
-            <div class="feature-desc">Tăng bám đầu 85%</div>
-        </div>
-        <label class="toggle-switch">
-            <input type="checkbox">
-            <span class="slider"></span>
-        </label>
-    </div>
-
-    <div class="feature">
-        <div class="feature-info">
-            <div class="feature-name">Giảm Lạc Đạn <span class="vip-badge">VIP</span></div>
-            <div class="feature-desc">Giúp đạn bay ổn định hơn</div>
-        </div>
-        <label class="toggle-switch">
-            <input type="checkbox">
-            <span class="slider"></span>
-        </label>
-    </div>
-</div>
-
-        <div class="script-panel">
-            <div class="script-header">
-                <span style="font-size:16px; font-weight:bold; color:#00ff41;">📜 Terminal Output</span>
-                <button id="runBtn" class="run-btn" onclick="startScript()">KHỞI CHẠY BỔ SUNG...</button>
+    <div id="payment-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-[100] flex items-center justify-center backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-2xl p-6 w-11/12 max-w-md shadow-2xl transform transition-all scale-100 max-h-[90vh] overflow-y-auto">
+            
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <h3 class="text-2xl font-bold text-gray-800"><i class="fas fa-shopping-cart text-blue-600 mr-2"></i>Thanh Toán</h3>
+                <button onclick="closePaymentModal()" class="text-gray-400 hover:text-red-500 text-2xl transition-colors"><i class="fas fa-times"></i></button>
             </div>
             
-            <div class="log-container" id="logBox">
-                <div class="log">> [SYSTEM] Bypassing kernel limitations...</div>
-                <div class="log">> [MEMORY] Cleaning cache buffers...</div>
-                <div class="log">> [PATCH] Injecting FF-Drag offset...</div>
-                <div class="log">> [TOUCH] Optimizing response latency...</div>
-                <div class="log">> [NETWORK] Optimizing DNS for latency...</div>
-                <div class="log">> [CORE] Stabilizing CPU clock frequency...</div>
-                <div class="log">> [DRAG] Applying Aimlock drag velocity...</div>
-                <div class="log">> [FINAL] Patching residual game logs...</div>
-                <div class="log">> [SUCCESS] SCRIPT EXECUTED SUCCESSFULLY!</div>
+            <div class="mb-2">
+                <p class="text-sm text-gray-500 mb-1">Sản phẩm bạn chọn:</p>
+                <div id="modal-product-name" class="font-bold text-xl text-blue-600">Tên sản phẩm</div>
+            </div>
+            
+            <div class="mb-4">
+                <p class="text-sm text-gray-500 mb-1">Giá trị:</p>
+                <div id="modal-product-price" class="font-black text-2xl text-red-500">0đ</div>
+            </div>
+            
+            <div class="flex border-b mb-4">
+                <button id="tab-btn-qr" onclick="switchPayTab('qr')" class="flex-1 py-2 text-sm font-bold text-blue-600 border-b-2 border-blue-600 outline-none">Quét QR Ngân Hàng</button>
+                <button id="tab-btn-card" onclick="switchPayTab('card')" class="flex-1 py-2 text-sm font-bold text-gray-500 border-b-2 border-transparent outline-none">Nạp Thẻ Cào</button>
             </div>
 
-            <div class="script-buttons">
-                <button class="btn-fire btn-free" id="btnFree" onclick="launchGame(1)" disabled>🔥 FREE FIRE</button>
-                <button class="btn-fire btn-max" id="btnMax" onclick="launchGame(2)" disabled>⚡ FF MAX</button>
-            </div>
-        </div>
+            <div id="tab-content-qr" class="block">
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-4 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-blue-500 text-white text-[10px] px-2 py-1 rounded-bl-lg font-bold">QUÉT MÃ ĐỂ THANH TOÁN</div>
+                    
+                    <div class="flex flex-col items-center mt-2">
+                        <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-200 mb-3">
+                            <img id="modal-qr-code" src="" alt="Mã QR Thanh Toán" class="w-40 h-40 object-cover">
+                        </div>
+                        
+                        <div class="text-center w-full">
+                            <p class="text-sm mb-1 text-gray-600">Ngân hàng: <strong class="text-green-600">VP Bank</strong></p>
+                            <p class="text-sm mb-3 text-gray-600">Chủ tài khoản: <strong class="text-gray-900">NGUYEN VAN DAN</strong></p>
+                            
+                            <div class="bg-white p-2 rounded border border-dashed border-blue-300 mx-auto max-w-[80%]">
+                                <p class="text-xs text-gray-500 mb-1">Nội dung (Bắt buộc):</p>
+                                <p id="modal-transfer-content" class="text-base font-bold text-blue-700 tracking-wider">FAROS 1234</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-        <div class="footer">
-            © 2026 Zalo Liên Hệ: 0389148483 <br>
-            TikTok: faros.lovetiktok <br>
-            Cung cấp AimLock - Hỗ trợ kéo tâm - Proxy ADR<br>
-            Uy tín - An toàn - Chất lượng
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-4 rounded shadow-sm text-center md:text-left">
+                    <p class="text-xs text-yellow-800 leading-relaxed">
+                        <i class="fas fa-info-circle mr-1 text-yellow-600"></i> Lỗi thanh toán? Nhắn tin Zalo: 
+                        <a href="https://zalo.me/0389148483" target="_blank" class="text-blue-700 text-sm font-bold underline hover:text-blue-900">0389148483</a>
+                    </p>
+                </div>
+                
+                <button onclick="closePaymentModal()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-colors shadow-lg flex justify-center items-center">
+                    <i class="fas fa-check-circle mr-2"></i> Đã Chuyển Khoản Xong
+                </button>
+            </div>
+
+            <div id="tab-content-card" class="hidden">
+                <div class="bg-orange-50 p-4 rounded-xl border border-orange-100 mb-4">
+                    <h4 class="font-bold text-sm text-orange-800 mb-3"><i class="fas fa-ticket-alt mr-2"></i>Nhập thông tin thẻ cào</h4>
+                    <p class="text-xs text-gray-500 mb-3">* Lưu ý: Chọn sai mệnh giá thẻ sẽ bị trừ tiền theo quy định của nhà mạng.</p>
+                    
+                    <div class="space-y-3">
+                        <select id="card-type" class="w-full p-2 border border-gray-300 rounded outline-none focus:border-orange-500 text-sm">
+                            <option value="">-- Chọn loại thẻ --</option>
+                            <option value="VIETTEL">Viettel</option>
+                            <option value="VINAPHONE">Vinaphone</option>
+                            <option value="MOBIFONE">Mobifone</option>
+                            <option value="ZING">Zing</option>
+                        </select>
+
+                        <select id="card-amount" class="w-full p-2 border border-gray-300 rounded outline-none focus:border-orange-500 text-sm">
+                            <option value="">-- Chọn đúng mệnh giá thẻ --</option>
+                            <option value="50000">50.000đ</option>
+                            <option value="100000">100.000đ</option>
+                            <option value="200000">200.000đ</option>
+                            <option value="300000">300.000đ</option>
+                            <option value="500000">500.000đ</option>
+                            <option value="1000000">1.000.000đ</option>
+                        </select>
+
+                        <input type="text" id="card-serial" placeholder="Số Serial thẻ" class="w-full p-2 border border-gray-300 rounded outline-none focus:border-orange-500 text-sm">
+                        <input type="text" id="card-pin" placeholder="Mã thẻ (PIN)" class="w-full p-2 border border-gray-300 rounded outline-none focus:border-orange-500 text-sm">
+                    </div>
+                </div>
+
+                <button onclick="submitCard()" class="w-full bg-orange-500 text-white font-bold py-3 rounded-xl hover:bg-orange-600 transition-colors shadow-lg flex justify-center items-center">
+                    <i class="fas fa-paper-plane mr-2"></i> Gửi Thẻ Thanh Toán
+                </button>
+            </div>
+
+            <p class="text-[11px] text-center text-gray-400 mt-3">* Vui lòng chụp màn hình bill và gửi cho Admin sau khi giao dịch.</p>
         </div>
     </div>
 
     <script>
-        // Matrix Rain
-        const canvas = document.getElementById('matrixCanvas');
-        const ctx = canvas.getContext('2d');
-        let width, height, drops = [];
-        const letters = "01ABCDEFGHIJKLMNOPQRSTUVWXYZｦｱｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ";
-        const fontSize = 15;
+        // Hiển thị section ADR hoặc iOS
+        function showSection(sectionId) {
+            const sectionAdr = document.getElementById('adr-section');
+            const sectionIos = document.getElementById('ios-section');
+            const btnAdr = document.getElementById('btn-adr');
+            const btnIos = document.getElementById('btn-ios');
 
-        function resizeCanvas() {
-            width = window.innerWidth; height = window.innerHeight;
-            canvas.width = width; canvas.height = height;
-            drops = Array(Math.floor(width / fontSize)).fill(1);
-        }
+            sectionAdr.classList.add('hidden');
+            sectionIos.classList.add('hidden');
 
-        function drawMatrix() {
-            ctx.fillStyle = "rgba(0,0,0,0.1)";
-            ctx.fillRect(0,0,width,height);
-            ctx.fillStyle = "#00ff41";
-            ctx.font = fontSize + "px monospace";
-            for (let i = 0; i < drops.length; i++) {
-                const text = letters[Math.floor(Math.random() * letters.length)];
-                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                if (drops[i] * fontSize > height && Math.random() > 0.975) drops[i] = 0;
-                drops[i]++;
+            btnAdr.className = "bg-white border-2 border-gray-200 rounded-2xl p-8 shadow-sm opacity-50 smooth-transition transform hover:-translate-y-1 group hover:opacity-100";
+            btnIos.className = "bg-white border-2 border-gray-200 rounded-2xl p-8 shadow-sm opacity-50 smooth-transition transform hover:-translate-y-1 group hover:opacity-100";
+            
+            if (sectionId === 'adr-section') {
+                sectionAdr.classList.remove('hidden');
+                btnAdr.className = "bg-green-50 border-2 border-green-500 rounded-2xl p-8 shadow-lg opacity-100 smooth-transition transform -translate-y-1 group";
+            } else if (sectionId === 'ios-section') {
+                sectionIos.classList.remove('hidden');
+                btnIos.className = "bg-green-50 border-2 border-green-500 rounded-2xl p-8 shadow-lg opacity-100 smooth-transition transform -translate-y-1 group";
             }
         }
 
-        // Script Run Upgraded
-        function startScript() {
-            const btn = document.getElementById('runBtn');
-            const logs = document.querySelectorAll('#logBox .log');
-            const logBox = document.getElementById('logBox');
-            
-            btn.disabled = true;
-            btn.textContent = "ĐANG KHỞI CHẠY..."; // Đổi chữ khi ấn
-            btn.className = "run-btn running"; // Đổi sang màu xanh dương
-            
-            logs.forEach(l => l.style.display = 'none');
-
-            let i = 0;
-            const interval = setInterval(() => {
-                if (i < logs.length) {
-                    logs[i].style.display = 'block';
-                    logBox.scrollTop = logBox.scrollHeight;
-                    i++;
-                    playTickSound(700 + (i * 30));
-                } else {
-                    clearInterval(interval);
-                    btn.textContent = "✓ THÀNH CÔNG"; // Đổi chữ khi xong
-                    btn.className = "run-btn success"; // Đổi sang màu xanh lá
-                    document.getElementById('btnFree').disabled = false;
-                    document.getElementById('btnMax').disabled = false;
-                    playFinalSound();
-                }
-            }, 600);
-        }
-
-        // Audio Effects
-        let audioCtx;
-        function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-        
-        function playTickSound(freq) {
-            initAudio();
-            const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
-            o.frequency.value = freq; g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-            o.connect(g).connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.1);
-        }
-
-        function playFinalSound() { playTickSound(1000); setTimeout(() => playTickSound(1200), 100); }
-
-        // MỞ GAME TRỰC TIẾP (Đã thay thế theo mã mới, hỗ trợ iOS/Android)
-        function launchGame(type) {
-            const packageName = type === 1 ? "com.dts.freefireth" : "com.dts.freefiremax";
-            const urlScheme = type === 1 ? "freefire" : "freefiremax";
-            
-            // Âm thanh click
-            playTickSound(1100);
-            setTimeout(() => playTickSound(1400), 50);
-
-            const ua = navigator.userAgent.toLowerCase();
-            const isAndroid = ua.includes('android');
-            const isIOS = ua.includes('iphone') || ua.includes('ipad');
-            
-            if (isAndroid) {
-                window.location.href = `intent://#Intent;scheme=${urlScheme};package=${packageName};end`;
-            } else if (isIOS) {
-                window.location.href = `${urlScheme}://`;
+        function togglePricing(priceId) {
+            const priceDiv = document.getElementById(priceId);
+            if (priceDiv.classList.contains('hidden')) {
+                priceDiv.classList.remove('hidden');
             } else {
-                alert('Vui lòng mở game trên thiết bị di động.');
+                priceDiv.classList.add('hidden');
             }
         }
 
-        // Stats Update
-        function updateStats() {
-            const setVal = (id, val, color) => {
-                const prog = document.getElementById(id + '-progress');
-                const txt = document.getElementById(id + '-percent');
-                prog.style.stroke = color;
-                prog.style.strokeDashoffset = 251.2 - (251.2 * val / 100);
-                txt.textContent = val + '%';
-            };
-            setVal('cpu', Math.floor(Math.random() * 15) + 20, '#ff3333');
-            setVal('ram', Math.floor(Math.random() * 20) + 50, '#ffaa00');
-            setVal('network', Math.floor(Math.random() * 30) + 40, '#00ff41');
+        function openPaymentModal(productName, price) {
+            document.getElementById('modal-product-name').innerText = productName;
+            document.getElementById('modal-product-price').innerText = price;
+            
+            // Tự động gán mệnh giá thẻ cào nếu giá trị tương ứng (Loại bỏ các ký tự thừa)
+            let rawAmount = price.replace(/đ/g, '').replace(/\./g, '').trim();
+            if (rawAmount.includes('M')) {
+                rawAmount = rawAmount.replace(/M/g, '') * 1000000;
+            }
+            
+            // Thử auto-select mệnh giá thẻ
+            let amountSelect = document.getElementById('card-amount');
+            for(let i=0; i < amountSelect.options.length; i++) {
+                if(amountSelect.options[i].value == rawAmount) {
+                    amountSelect.selectedIndex = i;
+                    break;
+                } else {
+                    amountSelect.selectedIndex = 0; // Reset nếu không khớp
+                }
+            }
+
+            // Sinh mã nội dung QR
+            let randomId = Math.floor(1000 + Math.random() * 9000);
+            let transferContent = "FAROS " + randomId;
+            document.getElementById('modal-transfer-content').innerText = transferContent;
+            
+            // Cập nhật QR
+            let bankBin = "vpbank";
+            let accountNumber = "0389148483";
+            let accountName = "NGUYEN VAN DAN"; 
+            let qrUrl = `https://img.vietqr.io/image/${bankBin}-${accountNumber}-qr_only.png?amount=${rawAmount}&addInfo=${encodeURIComponent(transferContent)}&accountName=${encodeURIComponent(accountName)}`;
+            document.getElementById('modal-qr-code').src = qrUrl;
+            
+            // Mở modal, reset về Tab QR mặc định
+            switchPayTab('qr');
+            document.getElementById('payment-modal').classList.remove('hidden');
         }
 
-        function initApp() {
-            resizeCanvas();
-            setInterval(drawMatrix, 45);
-            setInterval(updateStats, 2000);
-            updateStats();
-            document.querySelectorAll('.toggle-switch input').forEach(t => t.addEventListener('change', () => playTickSound(900)));
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.add('hidden');
+            // Reset các input thẻ cào
+            document.getElementById('card-serial').value = '';
+            document.getElementById('card-pin').value = '';
         }
 
-        window.addEventListener('resize', resizeCanvas);
+        // Chuyển Tab trong Modal Thanh Toán
+        function switchPayTab(tab) {
+            const tabQrBtn = document.getElementById('tab-btn-qr');
+            const tabCardBtn = document.getElementById('tab-btn-card');
+            const contentQr = document.getElementById('tab-content-qr');
+            const contentCard = document.getElementById('tab-content-card');
+
+            if(tab === 'qr') {
+                contentQr.classList.remove('hidden');
+                contentCard.classList.add('hidden');
+                tabQrBtn.className = "flex-1 py-2 text-sm font-bold text-blue-600 border-b-2 border-blue-600 outline-none";
+                tabCardBtn.className = "flex-1 py-2 text-sm font-bold text-gray-500 border-b-2 border-transparent outline-none";
+            } else {
+                contentQr.classList.add('hidden');
+                contentCard.classList.remove('hidden');
+                tabCardBtn.className = "flex-1 py-2 text-sm font-bold text-orange-600 border-b-2 border-orange-600 outline-none";
+                tabQrBtn.className = "flex-1 py-2 text-sm font-bold text-gray-500 border-b-2 border-transparent outline-none";
+            }
+        }
+
+        // Gửi thông tin thẻ (Demo API Frontend)
+        function submitCard() {
+            const type = document.getElementById('card-type').value;
+            const amount = document.getElementById('card-amount').value;
+            const serial = document.getElementById('card-serial').value;
+            const pin = document.getElementById('card-pin').value;
+            const productName = document.getElementById('modal-product-name').innerText;
+
+            if(!type || !amount || !serial || !pin) {
+                alert("Lỗi: Vui lòng điền đầy đủ thông tin thẻ cào!");
+                return;
+            }
+
+            // HIỆN LOADING Ở ĐÂY (Bạn có thể tự custom thêm vòng xoay loading)
+            alert("Hệ thống đang xử lý thẻ " + type + " mệnh giá " + amount + " cho gói " + productName + ".\n\n*Lưu ý: Bạn cần cấu hình Backend (Python/Firebase) để kết nối API với GachTheFast thực sự.");
+            
+            // Nơi chứa Code Fetch API gửi data về Backend của bạn
+            /*
+            fetch('https://server-cua-ban.com/api/napthe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type, amount, serial, pin, productName })
+            })
+            .then(res => res.json())
+            .then(data => alert('Thành công!'))
+            .catch(err => alert('Lỗi kết nối!'));
+            */
+        }
     </script>
 </body>
 </html>
