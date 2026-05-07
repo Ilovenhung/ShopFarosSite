@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -35,7 +35,7 @@
                 
                 <div id="user-info" class="hidden flex items-center gap-2">
                     <div class="bg-blue-800 px-4 py-1.5 rounded-full text-sm font-semibold shadow-inner border border-blue-500">
-                        <span class="text-gray-200"><i class="fas fa-user-circle"></i> <span id="hdr-phone">038...</span></span>
+                        <span class="text-gray-200"><i class="fas fa-user-circle"></i> <span id="hdr-username">Guest</span></span>
                         <span class="mx-1 text-blue-400">|</span>
                         <span class="text-green-400"><i class="fas fa-wallet"></i> <span id="hdr-balance">0đ</span></span>
                     </div>
@@ -279,7 +279,7 @@
                 <h3 id="auth-title" class="text-2xl font-bold text-gray-800">Đăng Nhập</h3>
             </div>
             
-            <input type="number" id="auth-phone" placeholder="Nhập Số Điện Thoại..." class="input-auth font-bold tracking-wider text-center" oninput="this.value=this.value.replace(/[^0-9]/g,'');">
+            <input type="text" id="auth-username" placeholder="Nhập Tên Đăng Nhập..." class="input-auth font-bold tracking-wider text-center" oninput="this.value=this.value.replace(/[^a-zA-Z0-9_]/g,'');">
             <input type="password" id="auth-pass" placeholder="Nhập Mật Khẩu..." class="input-auth text-center">
             
             <button id="auth-submit-btn" onclick="submitAuth()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition shadow-lg mt-2 mb-4">ĐĂNG NHẬP NGAY</button>
@@ -333,8 +333,8 @@
                         <p class="text-sm mb-1 text-gray-600">NH: <strong class="text-green-600">VP Bank</strong></p>
                         <p class="text-sm mb-3 text-gray-600">Tên: <strong class="text-gray-900">NGUYEN VAN DAN</strong></p>
                         <div class="bg-white p-2 rounded border border-dashed border-blue-300">
-                            <p class="text-[11px] text-gray-500 mb-1">Nội dung (Bắt buộc nhập đúng SĐT):</p>
-                            <p id="modal-transfer-content" class="text-lg font-bold text-red-500 tracking-wider">NAP 038xxx</p>
+                            <p class="text-[11px] text-gray-500 mb-1">Nội dung chuyển (Ghi đúng Tên Đăng Nhập):</p>
+                            <p id="modal-transfer-content" class="text-lg font-bold text-red-500 tracking-wider">NAP USERNAME</p>
                         </div>
                     </div>
                 </div>
@@ -379,7 +379,6 @@
     </div>
 
     <script>
-        // Cấu hình Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyD7UvVO5G5EgCwoYd-VgJYXylUw1nOGSlI",
             authDomain: "shopfarossite.firebaseapp.com",
@@ -393,24 +392,23 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
 
-        // BIẾN TOÀN CỤC AUTH
-        let currentUserPhone = localStorage.getItem('faros_phone');
+        // BIẾN TOÀN CỤC AUTH (DÙNG USERNAME)
+        let currentUsername = localStorage.getItem('faros_username');
         let currentBalance = 0;
         let authMode = 'login';
         let payingProductPrice = 0;
         let payingProductName = "";
 
         // ==============================
-        // LOGIC AUTH (ĐĂNG NHẬP / KÝ)
+        // LOGIC AUTH TÊN ĐĂNG NHẬP
         // ==============================
         function initAuth() {
-            if(currentUserPhone) {
+            if(currentUsername) {
                 document.getElementById('auth-buttons').classList.add('hidden');
                 document.getElementById('user-info').classList.remove('hidden');
-                document.getElementById('hdr-phone').innerText = currentUserPhone;
+                document.getElementById('hdr-username').innerText = currentUsername;
                 
-                // Lắng nghe realtime số dư
-                db.ref('users/' + currentUserPhone).on('value', snap => {
+                db.ref('users/' + currentUsername).on('value', snap => {
                     if(snap.exists()) {
                         let u = snap.val();
                         currentBalance = parseInt(u.balance) || 0;
@@ -425,7 +423,7 @@
                 document.getElementById('user-info').classList.add('hidden');
             }
         }
-        initAuth(); // Chạy lúc load trang
+        initAuth(); 
 
         function openAuthModal(mode) {
             authMode = mode;
@@ -447,40 +445,38 @@
         function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
 
         function submitAuth() {
-            const phone = document.getElementById('auth-phone').value.trim();
+            const username = document.getElementById('auth-username').value.trim();
             const pass = document.getElementById('auth-pass').value.trim();
 
-            if(phone.length < 9) return alert("Số điện thoại không hợp lệ!");
+            if(username.length < 4) return alert("Tên đăng nhập phải từ 4 ký tự trở lên (không dấu, không cách)!");
             if(pass.length < 4) return alert("Mật khẩu phải từ 4 ký tự trở lên!");
 
             const btn = document.getElementById('auth-submit-btn');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Chờ...';
 
-            db.ref('users/' + phone).once('value', snap => {
+            db.ref('users/' + username).once('value', snap => {
                 btn.innerText = (authMode === 'login') ? 'ĐĂNG NHẬP NGAY' : 'TẠO TÀI KHOẢN';
                 
                 if(authMode === 'register') {
                     if(snap.exists()) {
-                        alert("Số điện thoại này đã được đăng ký! Vui lòng Đăng Nhập.");
+                        alert("Tên đăng nhập này đã có người sử dụng! Vui lòng chọn tên khác hoặc Đăng Nhập.");
                     } else {
-                        // Đăng ký mới (Tạo format chuẩn giống web kia)
-                        db.ref('users/' + phone).set({
-                            username: "Khách_" + phone.substring(phone.length - 4),
+                        db.ref('users/' + username).set({
+                            username: username,
                             password: pass,
                             balance: 0,
                             total_deposit: 0,
                             created_at: new Date().toLocaleString('vi-VN')
                         }).then(() => {
                             alert("Đăng ký thành công! Đã tự động đăng nhập.");
-                            loginSuccess(phone);
+                            loginSuccess(username);
                         });
                     }
                 } else {
-                    // Đăng nhập
                     if(snap.exists()) {
                         let u = snap.val();
                         if(u.password === pass) {
-                            loginSuccess(phone);
+                            loginSuccess(username);
                         } else {
                             alert("Mật khẩu không chính xác!");
                         }
@@ -491,16 +487,16 @@
             });
         }
 
-        function loginSuccess(phone) {
-            localStorage.setItem('faros_phone', phone);
-            currentUserPhone = phone;
+        function loginSuccess(username) {
+            localStorage.setItem('faros_username', username);
+            currentUsername = username;
             closeAuthModal();
             initAuth();
         }
 
         function logout() {
             if(confirm("Bạn muốn đăng xuất?")) {
-                localStorage.removeItem('faros_phone');
+                localStorage.removeItem('faros_username');
                 location.reload();
             }
         }
@@ -531,7 +527,7 @@
         }
 
         function openPaymentModal(productName, rawPriceInt) {
-            if(!currentUserPhone) {
+            if(!currentUsername) {
                 alert("Vui lòng ĐĂNG NHẬP hoặc TẠO TÀI KHOẢN trước khi mua hàng nhé!");
                 openAuthModal('login');
                 return;
@@ -544,7 +540,6 @@
             document.getElementById('modal-product-price').innerText = rawPriceInt.toLocaleString() + 'đ';
             document.getElementById('modal-current-bal').innerText = currentBalance.toLocaleString() + 'đ';
             
-            // Xử lý nút Mua bằng số dư
             const btnPay = document.getElementById('btn-pay-balance');
             if(currentBalance >= rawPriceInt) {
                 btnPay.innerHTML = '<i class="fas fa-check-circle mr-2"></i> XÁC NHẬN MUA NGAY';
@@ -554,15 +549,15 @@
                 btnPay.className = "w-full bg-red-500 text-white font-bold py-3 rounded-xl hover:bg-red-600 transition shadow flex justify-center items-center";
             }
 
-            // Tạo QR Memo cực chuẩn cho SePay: "NAP <Số điện thoại>"
-            let transferContent = "NAP " + currentUserPhone;
+            // Gán Username vào nội dung QR: "NAP TENDANGNHAP"
+            let transferContent = "NAP " + currentUsername;
             document.getElementById('modal-transfer-content').innerText = transferContent;
             
             let bankBin = "vpbank"; let accountNumber = "0389148483"; let accountName = "NGUYEN VAN DAN"; 
             let qrUrl = `https://img.vietqr.io/image/${bankBin}-${accountNumber}-qr_only.png?amount=${rawPriceInt}&addInfo=${encodeURIComponent(transferContent)}&accountName=${encodeURIComponent(accountName)}`;
             document.getElementById('modal-qr-code').src = qrUrl;
             
-            switchPayTab('bal'); // Mặc định mở tab Số dư
+            switchPayTab('bal'); 
             document.getElementById('payment-modal').classList.remove('hidden');
         }
 
@@ -580,7 +575,6 @@
             document.getElementById('tab-btn-' + tab).className = `flex-1 py-2 text-sm font-bold ${colorClass} border-b-2 outline-none`;
         }
 
-        // 1. MUA BẰNG SỐ DƯ (Trừ tiền trực tiếp trên Firebase)
         function processBalancePayment() {
             if(currentBalance < payingProductPrice) {
                 alert("Số dư của bạn không đủ! Vui lòng chọn Nạp CK hoặc Nạp Thẻ để có thêm tiền.");
@@ -590,24 +584,21 @@
             if(confirm("Hệ thống sẽ trừ " + payingProductPrice.toLocaleString() + "đ từ số dư của bạn để mua " + payingProductName + "?")) {
                 let newBalance = currentBalance - payingProductPrice;
                 
-                // Trừ tiền
-                db.ref('users/' + currentUserPhone + '/balance').set(newBalance);
+                db.ref('users/' + currentUsername + '/balance').set(newBalance);
                 
-                // Ghi lịch sử thành công (cho web chuẩn đọc được)
-                db.ref('users/' + currentUserPhone + '/history/' + Date.now()).set({
+                db.ref('users/' + currentUsername + '/history/' + Date.now()).set({
                     type: 'buy',
                     desc: 'Mua ' + payingProductName,
                     amount: payingProductPrice,
                     status: 'SUCCESS',
                     time: new Date().toLocaleString('vi-VN')
                 }).then(() => {
-                    alert("🎉 Mua thành công! Bạn hãy nhắn tin Zalo Admin đọc SĐT ("+currentUserPhone+") để nhận File hỗ trợ ngay nhé!");
+                    alert("🎉 Mua thành công! Bạn hãy nhắn tin Zalo Admin đọc Tên Đăng Nhập ("+currentUsername+") để nhận File hỗ trợ ngay nhé!");
                     closePaymentModal();
                 });
             }
         }
 
-        // 2. GỬI THẺ CÀO (Gửi kèm Phone number để Gachthe.php trả về đúng tài khoản)
         function submitCard() {
             const type = document.getElementById('card-type').value;
             const amount = document.getElementById('card-amount').value;
@@ -616,8 +607,7 @@
 
             if(!type || !amount || !serial || !pin) return alert("Vui lòng điền đầy đủ thông tin mã thẻ và seri!");
 
-            // Tạo Request ID chuẩn cho GachTheFast.php đọc (Time_Phone)
-            const requestId = Date.now() + "_" + currentUserPhone;
+            const requestId = Date.now() + "_" + currentUsername;
             
             db.ref('card_requests/' + requestId).set({
                 type: type,
@@ -626,10 +616,10 @@
                 pin: pin,
                 status: 'pending',
                 time: Date.now(),
-                user: currentUserPhone, // SĐT khách
-                username: "User " + currentUserPhone
+                user: currentUsername, // Gửi Username lên
+                username: "User " + currentUsername
             }).then(() => {
-                alert("Đã gửi thẻ lên hệ thống kiểm tra!\n\nSố dư sẽ tự động cộng vào tài khoản ("+currentUserPhone+") nếu thẻ đúng (Mất 1-3 phút).");
+                alert("Đã gửi thẻ lên hệ thống kiểm tra!\n\nSố dư sẽ tự động cộng vào tài khoản ("+currentUsername+") nếu thẻ đúng (Mất 1-3 phút).");
                 closePaymentModal();
             }).catch(e => alert("Lỗi: " + e.message));
         }
