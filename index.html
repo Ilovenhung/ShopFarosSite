@@ -338,7 +338,11 @@
                         </div>
                     </div>
                 </div>
-                <p class="text-[11px] text-center text-gray-500 mb-3"><i class="fas fa-bolt text-yellow-500"></i> SePay nạp tự động vào số dư của bạn trong 5-10 giây.</p>
+                <p class="text-[11px] text-center text-gray-500 mb-3"><i class="fas fa-bolt text-yellow-500"></i> SePay nạp tự động vào số dư của bạn trong 5-30 giây.</p>
+
+                <button onclick="confirmBankTransfer()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition shadow flex justify-center items-center">
+                    <i class="fas fa-check-circle mr-2"></i> TÔI ĐÃ CHUYỂN KHOẢN
+                </button>
             </div>
 
             <div id="tab-content-card" class="hidden">
@@ -573,6 +577,11 @@
             
             let colorClass = (tab==='bal') ? 'text-green-600 border-green-600' : ((tab==='qr') ? 'text-blue-600 border-blue-600' : 'text-orange-600 border-orange-600');
             document.getElementById('tab-btn-' + tab).className = `flex-1 py-2 text-sm font-bold ${colorClass} border-b-2 outline-none`;
+        }
+
+        function confirmBankTransfer() {
+            alert("Hệ thống đang chờ nhận tín hiệu từ ngân hàng (SePay).\n\nThông thường mất khoảng 5 - 30 giây để tiền tự động cộng vào số dư của bạn.\n\nVui lòng giữ nguyên trang web hoặc load lại trang sau ít phút!");
+            closePaymentModal();
         }
 
         function processBalancePayment() {
