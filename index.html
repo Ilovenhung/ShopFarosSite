@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shop FAROS - Bảng Giá File</title>
+    <title>Shop FAROS - Hệ Thống Bán File Tự Động</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -35,16 +34,14 @@
                 
                 <div id="user-info" class="hidden flex items-center gap-2">
                     <div class="bg-blue-800 px-4 py-1.5 rounded-full text-sm font-semibold shadow-inner border border-blue-500">
-                        <span class="text-gray-200"><i class="fas fa-user-circle"></i> <span id="hdr-username">Guest</span></span>
+                        <span class="text-gray-200" title="Tên đăng nhập"><i class="fas fa-user-circle"></i> <span id="hdr-username">Guest</span></span>
+                        <span class="mx-1 text-blue-400">|</span>
+                        <span class="text-yellow-400" title="ID Tài Khoản của bạn">ID: <span id="hdr-userid">000</span></span>
                         <span class="mx-1 text-blue-400">|</span>
                         <span class="text-green-400"><i class="fas fa-wallet"></i> <span id="hdr-balance">0đ</span></span>
                     </div>
-                    <button onclick="logout()" class="bg-red-500 hover:bg-red-600 w-8 h-8 rounded-full flex justify-center items-center text-white shadow" title="Đăng Xuất"><i class="fas fa-sign-out-alt"></i></button>
+                    <button onclick="logout()" class="bg-red-500 hover:bg-red-600 w-8 h-8 rounded-full flex justify-center items-center text-white shadow"><i class="fas fa-sign-out-alt"></i></button>
                 </div>
-
-                <a href="https://zalo.me/0389148483" target="_blank" class="hidden md:flex bg-green-500 px-4 py-1.5 rounded-full text-sm font-semibold shadow hover:bg-green-600 transition items-center gap-2">
-                    <i class="fas fa-headset"></i> Zalo
-                </a>
             </div>
         </div>
     </header>
@@ -59,231 +56,59 @@
             <button id="btn-adr" onclick="showSection('adr-section')" class="bg-white border-2 border-gray-200 rounded-2xl p-8 shadow-sm smooth-transition transform hover:-translate-y-1 group">
                 <i id="icon-adr" class="fab fa-android text-6xl text-green-500 mb-4 group-hover:scale-110 smooth-transition"></i>
                 <h3 class="text-3xl font-black text-gray-800">ANDROID (ADR)</h3>
-                <p class="text-gray-500 mt-2">Data, Module, Proxy,....</p>
             </button>
-
             <button id="btn-ios" onclick="showSection('ios-section')" class="bg-white border-2 border-gray-200 rounded-2xl p-8 shadow-sm smooth-transition transform hover:-translate-y-1 group">
                 <i id="icon-ios" class="fab fa-apple text-6xl text-gray-800 mb-4 group-hover:scale-110 smooth-transition"></i>
                 <h3 class="text-3xl font-black text-gray-800">APPLE (iOS)</h3>
-                <p class="text-gray-500 mt-2">Config, Aim, Fluorite, Migul...</p>
             </button>
         </div>
 
         <div id="adr-section" class="hidden smooth-transition">
             <h3 class="text-2xl font-bold mb-6 border-l-4 border-green-500 pl-3 uppercase">Danh mục Android</h3>
             <div class="space-y-4">
-                
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <button onclick="togglePricing('price-adr-keotam')" class="w-full flex justify-between items-center p-5 hover:bg-gray-50">
                         <div class="flex items-center text-lg font-bold"><i class="fas fa-crosshairs text-green-500 w-8"></i> Hỗ trợ kéo tâm</div>
                         <i class="fas fa-chevron-down text-gray-400"></i>
                     </button>
                     <div id="price-adr-keotam" class="hidden bg-gray-50 border-t border-gray-200 p-5">
-                        <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-                            <div onclick="openPaymentModal('Kéo Tâm ADR V0', 2000)" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 0</span><span class="text-red-500">2K</span></div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                             <div onclick="openPaymentModal('Kéo Tâm ADR V1', 100000)" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 1</span><span class="text-red-500">100K</span></div>
                             <div onclick="openPaymentModal('Kéo Tâm ADR V2', 200000)" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 2</span><span class="text-red-500">200K</span></div>
-                            <div onclick="openPaymentModal('Kéo Tâm ADR V3', 300000)" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 3</span><span class="text-red-500">300K</span></div>
-                            <div onclick="openPaymentModal('Kéo Tâm ADR V4', 400000)" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 4</span><span class="text-red-500">400K</span></div>
-                            <div onclick="openPaymentModal('Kéo Tâm ADR V5', 500000)" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 5</span><span class="text-red-500">500K</span></div>
-                            <div onclick="openPaymentModal('Kéo Tâm ADR V6', 600000)" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 6</span><span class="text-red-500">600K</span></div>
-                            <div onclick="openPaymentModal('Kéo Tâm ADR V7', 700000)" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 7</span><span class="text-red-500">700K</span></div>
-                            <div onclick="openPaymentModal('Kéo Tâm ADR V8', 800000)" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 8</span><span class="text-red-500">800K</span></div>
-                            <div onclick="openPaymentModal('Kéo Tâm ADR V9', 900000)" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 9</span><span class="text-red-500">900K</span></div>
-                            <div onclick="openPaymentModal('Kéo Tâm ADR V10', 1000000)" class="price-box bg-white p-3 rounded border border-green-500 text-center"><span class="block font-bold text-green-600">Ver 10</span><span class="text-red-600 font-bold">1M</span></div>
                         </div>
                     </div>
                 </div>
-
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <button onclick="togglePricing('price-adr-module')" class="w-full flex justify-between items-center p-5 hover:bg-gray-50">
-                        <div class="flex items-center text-lg font-bold"><i class="fas fa-microchip text-purple-500 w-8"></i> Module (No Root)</div>
-                        <i class="fas fa-chevron-down text-gray-400"></i>
-                    </button>
-                    <div id="price-adr-module" class="hidden bg-gray-50 border-t border-gray-200 p-5">
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            <div onclick="openPaymentModal('Module ADR V1', 50000)" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 1</span><span class="text-red-500">50K</span></div>
-                            <div onclick="openPaymentModal('Module ADR V2', 150000)" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 2</span><span class="text-red-500">150K</span></div>
-                            <div onclick="openPaymentModal('Module ADR V3', 300000)" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 3</span><span class="text-red-500">300K</span></div>
-                            <div onclick="openPaymentModal('Module ADR V4', 400000)" class="price-box bg-white p-3 rounded border border-purple-500 text-center"><span class="block font-bold text-purple-600">Ver 4</span><span class="text-red-600 font-bold">400K</span></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <button onclick="togglePricing('price-adr-proxy')" class="w-full flex justify-between items-center p-5 hover:bg-gray-50">
-                        <div class="flex items-center text-lg font-bold"><i class="fas fa-network-wired text-blue-500 w-8"></i> Proxy</div>
-                        <i class="fas fa-chevron-down text-gray-400"></i>
-                    </button>
-                    <div id="price-adr-proxy" class="hidden bg-gray-50 border-t border-gray-200 p-5">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="border rounded-lg bg-white overflow-hidden">
-                                <div class="bg-blue-100 text-blue-800 font-bold p-2 text-center">Data Kernel</div>
-                                <div class="p-4 grid grid-cols-3 gap-2">
-                                    <div onclick="openPaymentModal('Proxy Data Kernel V1', 50000)" class="price-box text-center border p-2 rounded"><span class="block text-sm">V1</span><span class="text-red-500 font-bold">50K</span></div>
-                                    <div onclick="openPaymentModal('Proxy Data Kernel V2', 100000)" class="price-box text-center border p-2 rounded"><span class="block text-sm">V2</span><span class="text-red-500 font-bold">100K</span></div>
-                                    <div onclick="openPaymentModal('Proxy Data Kernel V3', 150000)" class="price-box text-center border p-2 rounded"><span class="block text-sm">V3</span><span class="text-red-500 font-bold">150K</span></div>
-                                </div>
-                            </div>
-                            <div class="border rounded-lg bg-white overflow-hidden">
-                                <div class="bg-orange-100 text-orange-800 font-bold p-2 text-center">Coreboost</div>
-                                <div class="p-4 grid grid-cols-3 gap-2">
-                                    <div onclick="openPaymentModal('Proxy Coreboost V1', 50000)" class="price-box text-center border p-2 rounded"><span class="block text-sm">V1</span><span class="text-red-500 font-bold">50K</span></div>
-                                    <div onclick="openPaymentModal('Proxy Coreboost V2', 100000)" class="price-box text-center border p-2 rounded"><span class="block text-sm">V2</span><span class="text-red-500 font-bold">100K</span></div>
-                                    <div onclick="openPaymentModal('Proxy Coreboost V3', 150000)" class="price-box text-center border p-2 rounded"><span class="block text-sm">V3</span><span class="text-red-500 font-bold">150K</span></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <button onclick="togglePricing('price-adr-data')" class="w-full flex justify-between items-center p-5 hover:bg-gray-50">
-                        <div class="flex items-center text-lg font-bold"><i class="fas fa-database text-orange-500 w-8"></i> Data (Ăn sâu vào máy)</div>
-                        <i class="fas fa-chevron-down text-gray-400"></i>
-                    </button>
-                    <div id="price-adr-data" class="hidden bg-gray-50 border-t border-gray-200 p-5">
-                        <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-                            <div onclick="openPaymentModal('Data Ăn Sâu V1', 100000)" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 1</span><span class="text-red-500">100K</span></div>
-                            <div onclick="openPaymentModal('Data Ăn Sâu V2', 200000)" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 2</span><span class="text-red-500">200K</span></div>
-                            <div onclick="openPaymentModal('Data Ăn Sâu V3', 300000)" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 3</span><span class="text-red-500">300K</span></div>
-                            <div onclick="openPaymentModal('Data Ăn Sâu V4', 400000)" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 4</span><span class="text-red-500">400K</span></div>
-                            <div onclick="openPaymentModal('Data Ăn Sâu V5', 500000)" class="price-box bg-white p-3 rounded border border-orange-500 text-center"><span class="block font-bold text-orange-600">Ver 5 (MAX)</span><span class="text-red-600 font-bold">500K</span></div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
-
+        
         <div id="ios-section" class="hidden smooth-transition">
             <h3 class="text-2xl font-bold mb-6 border-l-4 border-gray-800 pl-3 uppercase">Danh mục iOS</h3>
             <div class="space-y-4">
-                
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <button onclick="togglePricing('price-ios-config')" class="w-full flex justify-between items-center p-5 hover:bg-gray-50">
-                        <div class="flex items-center text-lg font-bold"><i class="fas fa-file-code text-blue-500 w-8"></i> Faulsweep Smooth & Config App</div>
-                        <i class="fas fa-chevron-down text-gray-400"></i>
-                    </button>
-                    <div id="price-ios-config" class="hidden bg-gray-50 border-t border-gray-200 p-5">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h4 class="font-bold text-gray-700 mb-3 border-b pb-1">Faulsweep Smooth</h4>
-                                <div class="space-y-2">
-                                    <div onclick="openPaymentModal('Faulsweep Smooth v1', 50000)" class="price-box bg-white p-3 rounded border flex justify-between items-center">
-                                        <span class="font-bold text-sm">Faulsweep Smooth v1</span><span class="text-red-500 font-bold">50K</span>
-                                    </div>
-                                    <div onclick="openPaymentModal('Faulsweep Smooth v2', 100000)" class="price-box bg-white p-3 rounded border flex justify-between items-center">
-                                        <span class="font-bold text-sm">Faulsweep Smooth v2</span><span class="text-red-500 font-bold">100K</span>
-                                    </div>
-                                    <div onclick="openPaymentModal('Faulsweep Smooth v3', 150000)" class="price-box bg-white p-3 rounded border flex justify-between items-center">
-                                        <span class="font-bold text-sm">Faulsweep Smooth v3</span><span class="text-red-500 font-bold">150K</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-gray-700 mb-3 border-b pb-1">Config + App Hỗ Trợ</h4>
-                                <div class="space-y-2">
-                                    <div onclick="openPaymentModal('Config + App Hỗ Trợ v1', 100000)" class="price-box bg-white p-3 rounded border flex justify-between items-center">
-                                        <span class="font-bold text-sm">Config + App Hỗ Trợ v1</span><span class="text-red-500 font-bold">100K</span>
-                                    </div>
-                                    <div onclick="openPaymentModal('Config + App Hỗ Trợ v2', 200000)" class="price-box bg-white p-3 rounded border flex justify-between items-center">
-                                        <span class="font-bold text-sm">Config + App Hỗ Trợ v2</span><span class="text-red-500 font-bold">200K</span>
-                                    </div>
-                                    <div onclick="openPaymentModal('Config + App Hỗ Trợ v3', 300000)" class="price-box bg-white p-3 rounded border flex justify-between items-center">
-                                        <span class="font-bold text-sm">Config + App Hỗ Trợ v3</span><span class="text-red-500 font-bold">300K</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <button onclick="togglePricing('price-ios-aim')" class="w-full flex justify-between items-center p-5 hover:bg-gray-50">
-                        <div class="flex items-center text-lg font-bold"><i class="fas fa-crosshairs text-red-500 w-8"></i> Aim Neck / Aim Body / Aim Drag</div>
+                        <div class="flex items-center text-lg font-bold"><i class="fas fa-crosshairs text-red-500 w-8"></i> Aim (Body/Neck/Drag)</div>
                         <i class="fas fa-chevron-down text-gray-400"></i>
                     </button>
                     <div id="price-ios-aim" class="hidden bg-gray-50 border-t border-gray-200 p-5">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div onclick="openPaymentModal('iOS - Aim Neck', 150000)" class="price-box bg-white p-4 rounded-lg shadow-sm border border-gray-200 text-center">
-                                <h5 class="text-lg font-bold text-gray-800 mb-1">Aim Neck</h5>
-                                <span class="text-xl font-black text-red-500">150K</span>
-                            </div>
-                            <div onclick="openPaymentModal('iOS - Aim Body', 150000)" class="price-box bg-white p-4 rounded-lg shadow-sm border border-gray-200 text-center">
-                                <h5 class="text-lg font-bold text-gray-800 mb-1">Aim Body</h5>
-                                <span class="text-xl font-black text-red-500">150K</span>
-                            </div>
-                            <div onclick="openPaymentModal('iOS - Aim Drag', 150000)" class="price-box bg-white p-4 rounded-lg shadow-sm border border-gray-200 text-center">
-                                <h5 class="text-lg font-bold text-gray-800 mb-1">Aim Drag</h5>
-                                <span class="text-xl font-black text-red-500">150K</span>
-                            </div>
+                            <div onclick="openPaymentModal('iOS - Aim Neck', 150000)" class="price-box bg-white p-4 rounded-lg shadow-sm border border-gray-200 text-center"><h5 class="text-lg font-bold text-gray-800 mb-1">Aim Neck</h5><span class="text-xl font-black text-red-500">150K</span></div>
                         </div>
                     </div>
                 </div>
-
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <button onclick="togglePricing('price-ios-fluorite')" class="w-full flex justify-between items-center p-5 hover:bg-indigo-50">
-                        <div class="flex items-center text-lg font-bold text-indigo-700"><i class="fas fa-gem text-indigo-500 w-8"></i> Menu Fluorite</div>
-                        <i class="fas fa-chevron-down text-gray-400"></i>
-                    </button>
-                    <div id="price-ios-fluorite" class="hidden bg-indigo-50 border-t border-indigo-100 p-5">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div onclick="openPaymentModal('Fluorite - 1 Ngày', 100000)" class="price-box bg-white p-4 rounded-lg border border-indigo-200 text-center hover:border-indigo-500">
-                                <h5 class="text-xl font-bold text-gray-800 mb-2">1 Ngày</h5>
-                                <span class="text-2xl font-black text-red-500">100K</span>
-                            </div>
-                            <div onclick="openPaymentModal('Fluorite - 7 Ngày', 250000)" class="price-box bg-white p-4 rounded-lg border border-indigo-200 text-center hover:border-indigo-500">
-                                <h5 class="text-xl font-bold text-gray-800 mb-2">7 Ngày</h5>
-                                <span class="text-2xl font-black text-red-500">250K</span>
-                            </div>
-                            <div onclick="openPaymentModal('Fluorite - 31 Ngày', 400000)" class="price-box bg-white p-4 rounded-lg border-2 border-indigo-500 text-center relative hover:border-indigo-600">
-                                <span class="absolute -top-3 right-3 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold">VIP</span>
-                                <h5 class="text-xl font-bold text-gray-800 mb-2">31 Ngày</h5>
-                                <span class="text-2xl font-black text-red-500">400K</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <button onclick="togglePricing('price-ios-migul')" class="w-full flex justify-between items-center p-5 hover:bg-orange-50">
-                        <div class="flex items-center text-lg font-bold text-orange-700"><i class="fas fa-crown text-orange-500 w-8"></i> Migul Pro</div>
-                        <i class="fas fa-chevron-down text-gray-400"></i>
-                    </button>
-                    <div id="price-ios-migul" class="hidden bg-orange-50 border-t border-orange-100 p-5">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div onclick="openPaymentModal('Migul Pro - 7 Ngày', 250000)" class="price-box bg-white p-4 rounded-lg border border-orange-200 text-center hover:border-orange-500">
-                                <h5 class="text-xl font-bold text-gray-800 mb-2">7 Ngày</h5>
-                                <span class="text-2xl font-black text-red-500">250K</span>
-                            </div>
-                            <div onclick="openPaymentModal('Migul Pro - 31 Ngày', 450000)" class="price-box bg-white p-4 rounded-lg border-2 border-orange-500 text-center relative hover:border-orange-600">
-                                <span class="absolute -top-3 right-3 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold">BEST CHOICE</span>
-                                <h5 class="text-xl font-bold text-gray-800 mb-2">31 Ngày</h5>
-                                <span class="text-2xl font-black text-red-500">450K</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
-
     </main>
 
     <div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden z-[150] flex items-center justify-center backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-2xl p-6 w-11/12 max-w-sm shadow-2xl transform transition-all scale-100 relative">
+        <div class="bg-white rounded-2xl p-6 w-11/12 max-w-sm shadow-2xl relative">
             <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-xl"><i class="fas fa-times"></i></button>
             <div class="text-center mb-6">
                 <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl"><i class="fas fa-user-shield"></i></div>
                 <h3 id="auth-title" class="text-2xl font-bold text-gray-800">Đăng Nhập</h3>
             </div>
-            
             <input type="text" id="auth-username" placeholder="Nhập Tên Đăng Nhập..." class="input-auth font-bold tracking-wider text-center" oninput="this.value=this.value.replace(/[^a-zA-Z0-9_]/g,'');">
             <input type="password" id="auth-pass" placeholder="Nhập Mật Khẩu..." class="input-auth text-center">
-            
             <button id="auth-submit-btn" onclick="submitAuth()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition shadow-lg mt-2 mb-4">ĐĂNG NHẬP NGAY</button>
-            
             <div class="text-center text-sm text-gray-600" id="auth-switch-text">
                 Chưa có tài khoản? <span onclick="switchAuthMode('register')" class="text-blue-600 font-bold cursor-pointer hover:underline">Đăng Ký</span>
             </div>
@@ -291,8 +116,7 @@
     </div>
 
     <div id="payment-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden z-[100] flex items-center justify-center backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-2xl p-6 w-11/12 max-w-md shadow-2xl transform transition-all scale-100 max-h-[90vh] overflow-y-auto relative">
-            
+        <div class="bg-white rounded-2xl p-6 w-11/12 max-w-md shadow-2xl relative">
             <div class="flex justify-between items-center mb-4 border-b pb-3">
                 <h3 class="text-2xl font-bold text-gray-800"><i class="fas fa-shopping-cart text-blue-600 mr-2"></i>Thanh Toán</h3>
                 <button onclick="closePaymentModal()" class="text-gray-400 hover:text-red-500 text-2xl"><i class="fas fa-times"></i></button>
@@ -308,9 +132,8 @@
             </div>
             
             <div class="flex border-b mb-4">
-                <button id="tab-btn-bal" onclick="switchPayTab('bal')" class="flex-1 py-2 text-sm font-bold text-green-600 border-b-2 border-green-600 outline-none">Mua Bằng Số Dư</button>
+                <button id="tab-btn-bal" onclick="switchPayTab('bal')" class="flex-1 py-2 text-sm font-bold text-green-600 border-b-2 border-green-600 outline-none">Mua Số Dư</button>
                 <button id="tab-btn-qr" onclick="switchPayTab('qr')" class="flex-1 py-2 text-sm font-bold text-gray-500 border-b-2 border-transparent outline-none">Nạp CK</button>
-                <button id="tab-btn-card" onclick="switchPayTab('card')" class="flex-1 py-2 text-sm font-bold text-gray-500 border-b-2 border-transparent outline-none">Nạp Thẻ</button>
             </div>
 
             <div id="tab-content-bal" class="block">
@@ -325,60 +148,21 @@
 
             <div id="tab-content-qr" class="hidden">
                 <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-4 text-center">
-                    <p class="text-xs text-blue-800 font-bold mb-2">QUÉT MÃ ĐỂ NẠP TIỀN VÀO TÀI KHOẢN</p>
+                    <p class="text-xs text-blue-800 font-bold mb-2">QUÉT MÃ ĐỂ NẠP TIỀN</p>
                     <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-200 inline-block mb-3">
-                        <img id="modal-qr-code" src="" alt="Mã QR Thanh Toán" class="w-40 h-40 object-cover">
+                        <img id="modal-qr-code" src="" class="w-40 h-40 object-cover">
                     </div>
-                    <div class="text-left w-full mx-auto" style="max-width: 250px;">
-                        <p class="text-sm mb-1 text-gray-600">NH: <strong class="text-green-600">VP Bank</strong></p>
-                        <p class="text-sm mb-3 text-gray-600">Tên: <strong class="text-gray-900">NGUYEN VAN DAN</strong></p>
+                    <div class="text-left mx-auto max-w-[250px]">
+                        <p class="text-sm text-gray-600">NH: <strong class="text-green-600">VP Bank</strong></p>
+                        <p class="text-sm mb-2 text-gray-600">Tên: <strong class="text-gray-900">NGUYEN VAN DAN</strong></p>
                         <div class="bg-white p-2 rounded border border-dashed border-blue-300">
-                            <p class="text-[11px] text-gray-500 mb-1">Nội dung chuyển (Ghi đúng Tên Đăng Nhập):</p>
-                            <p id="modal-transfer-content" class="text-lg font-bold text-red-500 tracking-wider">NAP USERNAME</p>
+                            <p class="text-[11px] text-gray-500">Nội dung (Bắt buộc):</p>
+                            <p id="modal-transfer-content" class="text-lg font-bold text-red-500 tracking-wider">NAP ID</p>
                         </div>
                     </div>
                 </div>
-                <p class="text-[11px] text-center text-gray-500 mb-3"><i class="fas fa-bolt text-yellow-500"></i> SePay nạp tự động vào số dư của bạn trong 5-30 giây.</p>
-
-                <button onclick="confirmBankTransfer()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition shadow flex justify-center items-center">
-                    <i class="fas fa-check-circle mr-2"></i> TÔI ĐÃ CHUYỂN KHOẢN
-                </button>
+                <button onclick="closePaymentModal(); alert('Đang chờ SePay xác nhận...');" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition">TÔI ĐÃ CHUYỂN KHOẢN</button>
             </div>
-
-            <div id="tab-content-card" class="hidden">
-                <div class="bg-orange-50 p-4 rounded-xl border border-orange-100 mb-4">
-                    <h4 class="font-bold text-sm text-orange-800 mb-3"><i class="fas fa-ticket-alt mr-2"></i>Nhập thông tin thẻ cào</h4>
-                    <p class="text-[11px] text-gray-500 mb-3">* Mệnh giá thẻ bị chiết khấu theo hệ thống gachthefast. Nhập sai mệnh giá mất thẻ.</p>
-                    
-                    <div class="space-y-3">
-                        <select id="card-type" class="w-full p-2.5 border border-gray-300 rounded outline-none focus:border-orange-500 text-sm">
-                            <option value="">-- Chọn Loại Thẻ --</option>
-                            <option value="VIETTEL">Viettel</option>
-                            <option value="VINAPHONE">Vinaphone</option>
-                            <option value="MOBIFONE">Mobifone</option>
-                            <option value="ZING">Zing</option>
-                        </select>
-
-                        <select id="card-amount" class="w-full p-2.5 border border-gray-300 rounded outline-none focus:border-orange-500 text-sm font-bold text-red-500">
-                            <option value="">-- Chọn Mệnh Giá Thẻ --</option>
-                            <option value="50000">50.000đ</option>
-                            <option value="100000">100.000đ</option>
-                            <option value="200000">200.000đ</option>
-                            <option value="300000">300.000đ</option>
-                            <option value="500000">500.000đ</option>
-                            <option value="1000000">1.000.000đ</option>
-                        </select>
-
-                        <input type="text" id="card-serial" placeholder="Số Serial thẻ" class="w-full p-2.5 border border-gray-300 rounded outline-none focus:border-orange-500 text-sm">
-                        <input type="text" id="card-pin" placeholder="Mã thẻ (PIN)" class="w-full p-2.5 border border-gray-300 rounded outline-none focus:border-orange-500 text-sm">
-                    </div>
-                </div>
-
-                <button onclick="submitCard()" class="w-full bg-orange-500 text-white font-bold py-3 rounded-xl hover:bg-orange-600 transition shadow flex justify-center items-center">
-                    <i class="fas fa-paper-plane mr-2"></i> GỬI THẺ ĐỂ NẠP
-                </button>
-            </div>
-            
         </div>
     </div>
 
@@ -392,245 +176,116 @@
             messagingSenderId: "875754018024",
             appId: "1:875754018024:web:83114546c4143dd618255d"
         };
-        
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
 
-        // BIẾN TOÀN CỤC AUTH (DÙNG USERNAME)
         let currentUsername = localStorage.getItem('faros_username');
-        let currentBalance = 0;
-        let authMode = 'login';
-        let payingProductPrice = 0;
-        let payingProductName = "";
+        let currentUserId = localStorage.getItem('faros_userid');
+        let currentBalance = 0; let authMode = 'login'; let payingPrice = 0; let payingName = "";
 
-        // ==============================
-        // LOGIC AUTH TÊN ĐĂNG NHẬP
-        // ==============================
         function initAuth() {
-            if(currentUsername) {
+            if(currentUsername && currentUserId) {
                 document.getElementById('auth-buttons').classList.add('hidden');
                 document.getElementById('user-info').classList.remove('hidden');
                 document.getElementById('hdr-username').innerText = currentUsername;
+                document.getElementById('hdr-userid').innerText = currentUserId;
                 
                 db.ref('users/' + currentUsername).on('value', snap => {
                     if(snap.exists()) {
-                        let u = snap.val();
-                        currentBalance = parseInt(u.balance) || 0;
+                        currentBalance = parseInt(snap.val().balance) || 0;
                         document.getElementById('hdr-balance').innerText = currentBalance.toLocaleString() + 'đ';
-                        if(document.getElementById('modal-current-bal')) {
-                            document.getElementById('modal-current-bal').innerText = currentBalance.toLocaleString() + 'đ';
-                        }
+                        if(document.getElementById('modal-current-bal')) document.getElementById('modal-current-bal').innerText = currentBalance.toLocaleString() + 'đ';
                     }
                 });
             } else {
-                document.getElementById('auth-buttons').classList.remove('hidden');
-                document.getElementById('user-info').classList.add('hidden');
+                document.getElementById('auth-buttons').classList.remove('hidden'); document.getElementById('user-info').classList.add('hidden');
             }
         }
         initAuth(); 
 
         function openAuthModal(mode) {
-            authMode = mode;
-            document.getElementById('auth-pass').value = '';
-            document.getElementById('auth-modal').classList.remove('hidden');
-            
+            authMode = mode; document.getElementById('auth-pass').value = ''; document.getElementById('auth-modal').classList.remove('hidden');
             if(mode === 'login') {
-                document.getElementById('auth-title').innerText = 'Đăng Nhập';
-                document.getElementById('auth-submit-btn').innerText = 'ĐĂNG NHẬP NGAY';
-                document.getElementById('auth-switch-text').innerHTML = 'Chưa có tài khoản? <span onclick="switchAuthMode(\'register\')" class="text-blue-600 font-bold cursor-pointer hover:underline">Đăng Ký</span>';
+                document.getElementById('auth-title').innerText = 'Đăng Nhập'; document.getElementById('auth-submit-btn').innerText = 'ĐĂNG NHẬP';
+                document.getElementById('auth-switch-text').innerHTML = 'Chưa có tài khoản? <span onclick="openAuthModal(\'register\')" class="text-blue-600 font-bold cursor-pointer hover:underline">Đăng Ký</span>';
             } else {
-                document.getElementById('auth-title').innerText = 'Đăng Ký Nhanh';
-                document.getElementById('auth-submit-btn').innerText = 'TẠO TÀI KHOẢN';
-                document.getElementById('auth-switch-text').innerHTML = 'Đã có tài khoản? <span onclick="switchAuthMode(\'login\')" class="text-blue-600 font-bold cursor-pointer hover:underline">Đăng Nhập</span>';
+                document.getElementById('auth-title').innerText = 'Đăng Ký'; document.getElementById('auth-submit-btn').innerText = 'TẠO TÀI KHOẢN';
+                document.getElementById('auth-switch-text').innerHTML = 'Đã có tài khoản? <span onclick="openAuthModal(\'login\')" class="text-blue-600 font-bold cursor-pointer hover:underline">Đăng Nhập</span>';
             }
         }
-        
-        function switchAuthMode(mode) { openAuthModal(mode); }
         function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
 
         function submitAuth() {
             const username = document.getElementById('auth-username').value.trim();
             const pass = document.getElementById('auth-pass').value.trim();
-
-            if(username.length < 4) return alert("Tên đăng nhập phải từ 4 ký tự trở lên (không dấu, không cách)!");
-            if(pass.length < 4) return alert("Mật khẩu phải từ 4 ký tự trở lên!");
-
-            const btn = document.getElementById('auth-submit-btn');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Chờ...';
+            if(username.length < 4 || pass.length < 4) return alert("Tên đăng nhập và mật khẩu phải từ 4 ký tự!");
 
             db.ref('users/' + username).once('value', snap => {
-                btn.innerText = (authMode === 'login') ? 'ĐĂNG NHẬP NGAY' : 'TẠO TÀI KHOẢN';
-                
                 if(authMode === 'register') {
-                    if(snap.exists()) {
-                        alert("Tên đăng nhập này đã có người sử dụng! Vui lòng chọn tên khác hoặc Đăng Nhập.");
-                    } else {
-                        db.ref('users/' + username).set({
-                            username: username,
-                            password: pass,
-                            balance: 0,
-                            total_deposit: 0,
-                            created_at: new Date().toLocaleString('vi-VN')
-                        }).then(() => {
-                            alert("Đăng ký thành công! Đã tự động đăng nhập.");
-                            loginSuccess(username);
+                    if(snap.exists()) { alert("Tên đăng nhập đã tồn tại!"); } 
+                    else {
+                        // TẠO ID MỚI (6 Số)
+                        let newId = Math.floor(100000 + Math.random() * 900000);
+                        db.ref('users/' + username).set({ username: username, password: pass, id: newId, balance: 0, total_deposit: 0 }).then(() => {
+                            localStorage.setItem('faros_username', username); localStorage.setItem('faros_userid', newId);
+                            currentUsername = username; currentUserId = newId; alert("Đăng ký thành công!"); closeAuthModal(); initAuth();
                         });
                     }
                 } else {
-                    if(snap.exists()) {
-                        let u = snap.val();
-                        if(u.password === pass) {
-                            loginSuccess(username);
-                        } else {
-                            alert("Mật khẩu không chính xác!");
-                        }
-                    } else {
-                        alert("Tài khoản chưa tồn tại! Vui lòng Đăng Ký.");
-                    }
+                    if(snap.exists() && snap.val().password === pass) {
+                        let uId = snap.val().id || Math.floor(100000 + Math.random() * 900000); // Đảm bảo acc cũ cũng có ID
+                        if(!snap.val().id) db.ref('users/' + username + '/id').set(uId);
+                        localStorage.setItem('faros_username', username); localStorage.setItem('faros_userid', uId);
+                        currentUsername = username; currentUserId = uId; closeAuthModal(); initAuth();
+                    } else alert("Sai thông tin!");
                 }
             });
         }
+        function logout() { localStorage.removeItem('faros_username'); localStorage.removeItem('faros_userid'); location.reload(); }
 
-        function loginSuccess(username) {
-            localStorage.setItem('faros_username', username);
-            currentUsername = username;
-            closeAuthModal();
-            initAuth();
-        }
-
-        function logout() {
-            if(confirm("Bạn muốn đăng xuất?")) {
-                localStorage.removeItem('faros_username');
-                location.reload();
-            }
-        }
-
-        // ==============================
-        // LOGIC GIAO DIỆN & THANH TOÁN
-        // ==============================
         function showSection(sectionId) {
-            document.getElementById('adr-section').classList.add('hidden');
-            document.getElementById('ios-section').classList.add('hidden');
-            const btnAdr = document.getElementById('btn-adr'); const btnIos = document.getElementById('btn-ios');
-
-            btnAdr.className = "bg-white border-2 border-gray-200 rounded-2xl p-8 shadow-sm opacity-50 smooth-transition transform hover:-translate-y-1 group hover:opacity-100";
-            btnIos.className = "bg-white border-2 border-gray-200 rounded-2xl p-8 shadow-sm opacity-50 smooth-transition transform hover:-translate-y-1 group hover:opacity-100";
-            
-            if (sectionId === 'adr-section') {
-                document.getElementById('adr-section').classList.remove('hidden');
-                btnAdr.className = "bg-green-50 border-2 border-green-500 rounded-2xl p-8 shadow-lg opacity-100 smooth-transition transform -translate-y-1 group";
-            } else {
-                document.getElementById('ios-section').classList.remove('hidden');
-                btnIos.className = "bg-green-50 border-2 border-green-500 rounded-2xl p-8 shadow-lg opacity-100 smooth-transition transform -translate-y-1 group";
-            }
+            document.getElementById('adr-section').classList.add('hidden'); document.getElementById('ios-section').classList.add('hidden');
+            document.getElementById('btn-adr').className = "bg-white border-2 border-gray-200 rounded-2xl p-8 shadow-sm opacity-50 smooth-transition";
+            document.getElementById('btn-ios').className = "bg-white border-2 border-gray-200 rounded-2xl p-8 shadow-sm opacity-50 smooth-transition";
+            document.getElementById(sectionId).classList.remove('hidden');
+            document.getElementById((sectionId === 'adr-section') ? 'btn-adr' : 'btn-ios').className = "bg-green-50 border-2 border-green-500 rounded-2xl p-8 shadow-lg opacity-100 smooth-transition";
         }
+        function togglePricing(priceId) { const el = document.getElementById(priceId); el.classList.contains('hidden') ? el.classList.remove('hidden') : el.classList.add('hidden'); }
 
-        function togglePricing(priceId) {
-            const el = document.getElementById(priceId);
-            el.classList.contains('hidden') ? el.classList.remove('hidden') : el.classList.add('hidden');
-        }
-
-        function openPaymentModal(productName, rawPriceInt) {
-            if(!currentUsername) {
-                alert("Vui lòng ĐĂNG NHẬP hoặc TẠO TÀI KHOẢN trước khi mua hàng nhé!");
-                openAuthModal('login');
-                return;
-            }
-
-            payingProductName = productName;
-            payingProductPrice = rawPriceInt;
-
-            document.getElementById('modal-product-name').innerText = productName;
-            document.getElementById('modal-product-price').innerText = rawPriceInt.toLocaleString() + 'đ';
-            document.getElementById('modal-current-bal').innerText = currentBalance.toLocaleString() + 'đ';
+        function openPaymentModal(name, price) {
+            if(!currentUsername) return openAuthModal('login');
+            payingName = name; payingPrice = price;
+            document.getElementById('modal-product-name').innerText = name; document.getElementById('modal-product-price').innerText = price.toLocaleString() + 'đ';
             
             const btnPay = document.getElementById('btn-pay-balance');
-            if(currentBalance >= rawPriceInt) {
-                btnPay.innerHTML = '<i class="fas fa-check-circle mr-2"></i> XÁC NHẬN MUA NGAY';
-                btnPay.className = "w-full bg-green-500 text-white font-bold py-3 rounded-xl hover:bg-green-600 transition shadow flex justify-center items-center";
-            } else {
-                btnPay.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i> SỐ DƯ KHÔNG ĐỦ - CẦN NẠP THÊM';
-                btnPay.className = "w-full bg-red-500 text-white font-bold py-3 rounded-xl hover:bg-red-600 transition shadow flex justify-center items-center";
-            }
+            if(currentBalance >= price) { btnPay.innerHTML = '<i class="fas fa-check-circle mr-2"></i> MUA NGAY'; btnPay.className = "w-full bg-green-500 text-white font-bold py-3 rounded-xl hover:bg-green-600 transition shadow flex justify-center items-center"; } 
+            else { btnPay.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i> SỐ DƯ KHÔNG ĐỦ'; btnPay.className = "w-full bg-red-500 text-white font-bold py-3 rounded-xl hover:bg-red-600 transition shadow flex justify-center items-center"; }
 
-            // Gán Username vào nội dung QR: "NAP TENDANGNHAP"
-            let transferContent = "NAP " + currentUsername;
-            document.getElementById('modal-transfer-content').innerText = transferContent;
-            
-            let bankBin = "vpbank"; let accountNumber = "0389148483"; let accountName = "NGUYEN VAN DAN"; 
-            let qrUrl = `https://img.vietqr.io/image/${bankBin}-${accountNumber}-qr_only.png?amount=${rawPriceInt}&addInfo=${encodeURIComponent(transferContent)}&accountName=${encodeURIComponent(accountName)}`;
+            // Gắn ID vào nội dung QR: "NAP ID"
+            let memo = "NAP " + currentUserId;
+            document.getElementById('modal-transfer-content').innerText = memo;
+            let qrUrl = `https://img.vietqr.io/image/vpbank-0389148483-qr_only.png?amount=${price}&addInfo=${encodeURIComponent(memo)}&accountName=NGUYEN VAN DAN`;
             document.getElementById('modal-qr-code').src = qrUrl;
             
-            switchPayTab('bal'); 
-            document.getElementById('payment-modal').classList.remove('hidden');
+            switchPayTab('bal'); document.getElementById('payment-modal').classList.remove('hidden');
         }
-
         function closePaymentModal() { document.getElementById('payment-modal').classList.add('hidden'); }
-
         function switchPayTab(tab) {
-            const tabs = ['bal', 'qr', 'card'];
-            tabs.forEach(t => {
-                document.getElementById('tab-content-' + t).classList.add('hidden');
-                document.getElementById('tab-btn-' + t).className = "flex-1 py-2 text-sm font-bold text-gray-500 border-b-2 border-transparent outline-none";
-            });
+            document.getElementById('tab-content-bal').classList.add('hidden'); document.getElementById('tab-content-qr').classList.add('hidden');
+            document.getElementById('tab-btn-bal').className = "flex-1 py-2 text-sm font-bold text-gray-500 border-b-2 border-transparent outline-none";
+            document.getElementById('tab-btn-qr').className = "flex-1 py-2 text-sm font-bold text-gray-500 border-b-2 border-transparent outline-none";
             document.getElementById('tab-content-' + tab).classList.remove('hidden');
-            
-            let colorClass = (tab==='bal') ? 'text-green-600 border-green-600' : ((tab==='qr') ? 'text-blue-600 border-blue-600' : 'text-orange-600 border-orange-600');
-            document.getElementById('tab-btn-' + tab).className = `flex-1 py-2 text-sm font-bold ${colorClass} border-b-2 outline-none`;
-        }
-
-        function confirmBankTransfer() {
-            alert("Hệ thống đang chờ nhận tín hiệu từ ngân hàng (SePay).\n\nThông thường mất khoảng 5 - 30 giây để tiền tự động cộng vào số dư của bạn.\n\nVui lòng giữ nguyên trang web hoặc load lại trang sau ít phút!");
-            closePaymentModal();
+            document.getElementById('tab-btn-' + tab).className = `flex-1 py-2 text-sm font-bold ${(tab==='bal')?'text-green-600 border-green-600':'text-blue-600 border-blue-600'} border-b-2 outline-none`;
         }
 
         function processBalancePayment() {
-            if(currentBalance < payingProductPrice) {
-                alert("Số dư của bạn không đủ! Vui lòng chọn Nạp CK hoặc Nạp Thẻ để có thêm tiền.");
-                switchPayTab('qr');
-                return;
-            }
-            if(confirm("Hệ thống sẽ trừ " + payingProductPrice.toLocaleString() + "đ từ số dư của bạn để mua " + payingProductName + "?")) {
-                let newBalance = currentBalance - payingProductPrice;
-                
-                db.ref('users/' + currentUsername + '/balance').set(newBalance);
-                
-                db.ref('users/' + currentUsername + '/history/' + Date.now()).set({
-                    type: 'buy',
-                    desc: 'Mua ' + payingProductName,
-                    amount: payingProductPrice,
-                    status: 'SUCCESS',
-                    time: new Date().toLocaleString('vi-VN')
-                }).then(() => {
-                    alert("🎉 Mua thành công! Bạn hãy nhắn tin Zalo Admin đọc Tên Đăng Nhập ("+currentUsername+") để nhận File hỗ trợ ngay nhé!");
-                    closePaymentModal();
-                });
-            }
-        }
-
-        function submitCard() {
-            const type = document.getElementById('card-type').value;
-            const amount = document.getElementById('card-amount').value;
-            const serial = document.getElementById('card-serial').value.trim();
-            const pin = document.getElementById('card-pin').value.trim();
-
-            if(!type || !amount || !serial || !pin) return alert("Vui lòng điền đầy đủ thông tin mã thẻ và seri!");
-
-            const requestId = Date.now() + "_" + currentUsername;
-            
-            db.ref('card_requests/' + requestId).set({
-                type: type,
-                amount: amount,
-                serial: serial,
-                pin: pin,
-                status: 'pending',
-                time: Date.now(),
-                user: currentUsername, // Gửi Username lên
-                username: "User " + currentUsername
-            }).then(() => {
-                alert("Đã gửi thẻ lên hệ thống kiểm tra!\n\nSố dư sẽ tự động cộng vào tài khoản ("+currentUsername+") nếu thẻ đúng (Mất 1-3 phút).");
+            if(currentBalance < payingPrice) return switchPayTab('qr');
+            if(confirm(`Trừ ${payingPrice.toLocaleString()}đ để mua ${payingName}?`)) {
+                db.ref('users/' + currentUsername + '/balance').set(currentBalance - payingPrice);
+                db.ref('users/' + currentUsername + '/history/' + Date.now()).set({ type: 'buy', desc: 'Mua ' + payingName, amount: payingPrice, status: 'SUCCESS', time: new Date().toLocaleString('vi-VN') });
+                alert("🎉 Mua thành công! Vui lòng Inbox Zalo Admin đọc Username ("+currentUsername+") để lấy File.");
                 closePaymentModal();
-            }).catch(e => alert("Lỗi: " + e.message));
+            }
         }
     </script>
 </body>
