@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAROS ADMIN | TRUNG TÂM ĐIỀU KHIỂN</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #00e5ff; --bg-main: #0b0e14; --bg-card: rgba(21, 25, 35, 0.7); --border: rgba(33, 38, 49, 0.8); --green: #00ff88; --text-sub: #8b949e;}
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+        body { background: var(--bg-main); color: #fff; display: flex; min-height: 100vh; overflow: hidden; }
+        .sidebar { width: 250px; background: rgba(7, 9, 13, 0.9); border-right: 1px solid var(--border); padding: 25px 20px; display: flex; flex-direction: column;}
+        .nav-item { padding: 15px; color: var(--text-sub); cursor: pointer; border-radius: 12px; margin-bottom: 8px; font-weight: bold;}
+        .nav-item.active { background: rgba(0, 229, 255, 0.15); border-left: 4px solid var(--primary); color: var(--primary); }
+        .main { flex: 1; padding: 40px; overflow-y: auto; }
+        .card { background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border); padding: 25px; margin-bottom: 25px; }
+        table { width: 100%; border-collapse: collapse; text-align: left;}
+        th { padding: 15px; color: var(--text-sub); font-size: 12px; border-bottom: 1px solid var(--border); }
+        td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2 style="color:#fff; font-size: 18px; margin-bottom: 30px; text-align: center;">FAROS ADMIN</h2>
+        <div class="nav-item active"><i class="fas fa-users"></i> Quản Lý Dữ Liệu</div>
+    </div>
+    
+    <div class="main">
+        <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 20px;">Dữ Liệu Khách Hàng (Tự Động Cập Nhật)</h2>
+        <div class="card" style="padding: 0;">
+            <table>
+                <thead style="background: rgba(0,0,0,0.3);"><tr><th>TÀI KHOẢN</th><th>MÃ ID (NẠP TIỀN)</th><th>SỐ DƯ</th><th>TỔNG NẠP</th><th>NGÀY TẠO</th></tr></thead>
+                <tbody id="user-list"></tbody>
+            </table>
+        </div>
+        
+        <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 20px; margin-top: 40px;">Lịch Sử Mua Hàng & Nạp Tiền</h2>
+        <div class="card" style="padding: 0;">
+            <table>
+                <thead style="background: rgba(0,0,0,0.3);"><tr><th>TÀI KHOẢN</th><th>SỰ KIỆN</th><th>SỐ TIỀN</th><th>THỜI GIAN</th></tr></thead>
+                <tbody id="history-list"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD7UvVO5G5EgCwoYd-VgJYXylUw1nOGSlI",
+            authDomain: "shopfarossite.firebaseapp.com",
+            databaseURL: "https://shopfarossite-default-rtdb.firebaseio.com",
+            projectId: "shopfarossite",
+            storageBucket: "shopfarossite.firebasestorage.app",
+            messagingSenderId: "875754018024",
+            appId: "1:875754018024:web:83114546c4143dd618255d"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        db.ref('users').on('value', snap => {
+            const users = snap.val() || {};
+            const list = document.getElementById('user-list');
+            const histList = document.getElementById('history-list');
+            list.innerHTML = ''; histList.innerHTML = '';
+            
+            let allHistory = [];
+
+            for(let username in users) {
+                const u = users[username];
+                list.innerHTML += `<tr>
+                    <td style="color:var(--primary); font-weight:bold;">${u.username}</td>
+                    <td style="color:#ffaa00; font-family:monospace; font-size:16px;">${u.id || 'N/A'}</td>
+                    <td style="color:var(--green); font-weight:bold;">${(u.balance||0).toLocaleString()}đ</td>
+                    <td>${(u.total_deposit||0).toLocaleString()}đ</td>
+                    <td style="color:var(--text-sub); font-size:12px;">${u.created_at || ''}</td>
+                </tr>`;
+
+                if(u.history) {
+                    for(let hk in u.history) {
+                        allHistory.push({ user: u.username, id: u.id, sortKey: hk, ...u.history[hk] });
+                    }
+                }
+            }
+
+            allHistory.sort((a,b) => b.sortKey - a.sortKey);
+            allHistory.forEach(h => {
+                let isBuy = h.type === 'buy';
+                histList.innerHTML += `<tr>
+                    <td><strong>${h.user}</strong> <br><span style="font-size:11px; color:#ffaa00;">ID: ${h.id}</span></td>
+                    <td style="color:${isBuy ? '#8b5cf6' : 'var(--primary)'}">${h.desc}</td>
+                    <td style="color:${isBuy ? '#ff4757' : 'var(--green)'}; font-weight:bold;">${isBuy?'-':'+'} ${h.amount.toLocaleString()}đ</td>
+                    <td style="color:var(--text-sub); font-size:12px;">${h.time}</td>
+                </tr>`;
+            });
+        });
+    </script>
+</body>
+</html>
