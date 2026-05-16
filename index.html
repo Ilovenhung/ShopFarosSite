@@ -2,291 +2,476 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shop FAROS - Hệ Thống Bán File Tự Động</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TURBO HEAD - FAROS MATRIX PURPLE</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; }
-        .smooth-transition { transition: all 0.3s ease-in-out; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .price-box { cursor: pointer; transition: all 0.2s; }
-        .price-box:hover { transform: translateY(-2px); border-color: #3b82f6; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        .input-auth { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 12px; outline: none; transition: 0.3s; }
-        .input-auth:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@500;700&display=swap');
+        
+        :root {
+            --red-primary: #7B2CBF;
+            --red-dark: #4A1769;
+            --red-light: #C77DFF;
+            --red-gradient-start: #9D4EDD;
+            --red-gradient-end: #5A189A;
+            --text-color: #FFFFFF;
+            --red-background-deep: #2A0A3D;
+        }
+        
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0; padding: 0;
+            background-color: #000;
+            color: var(--text-color);
+            overflow-x: hidden;
+            min-height: 100vh;
+            
+            /* -- Chống bôi đen, sao chép chữ -- */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            
+            /* -- Tắt hiệu ứng nháy xanh khi bấm nút trên mobile -- */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Tắt outline khi click trên máy tính */
+        button, input, a {
+            outline: none !important;
+        }
+
+        /* MATRIX RAIN BACKGROUND */
+        #matrixCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            opacity: 0.45;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 380px;
+            margin: 25px auto;
+            background: rgba(15, 5, 25, 0.92);
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 0 20px var(--red-primary), 0 0 40px rgba(123, 44, 191, 0.5);
+            border: 2px solid var(--red-primary);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: linear-gradient(to bottom right, transparent 45%, var(--red-primary) 50%, transparent 55%);
+            opacity: 0.25;
+            animation: scan 6s linear infinite;
+            z-index: -1;
+        }
+        
+        @keyframes scan { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--red-primary);
+        }
+        
+        .header h1 {
+            font-family: 'Orbitron', sans-serif;
+            color: transparent;
+            background: linear-gradient(90deg, var(--red-primary), var(--red-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            margin: 0;
+            font-size: 28px;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(199, 125, 255, 0.8);
+        }
+        
+        .header p { color: var(--red-light); margin: 8px 0 0; font-size: 13px; font-weight: bold; }
+
+        /* PERFORMANCE CARD CÂN ĐỐI */
+        .performance-card {
+            padding: 20px 0;
+            margin-bottom: 25px;
+            background: rgba(15, 5, 25, 0.7);
+            border-radius: 12px;
+            border: 1px solid var(--red-primary);
+            box-shadow: 0 0 10px rgba(123, 44, 191, 0.3);
+        }
+
+        .performance-stats {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .stat-circle-container {
+            position: relative;
+            width: 80px; height: 80px;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+        }
+
+        .stat-circle-container svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+        .stat-circle-container circle { fill: none; stroke-width: 6; stroke-linecap: round; }
+        .bg-circle { stroke: rgba(255, 255, 255, 0.15); }
+        .progress-circle { stroke-dasharray: 251.2; transition: all 1.5s ease-out; }
+
+        .stat-circle-text { position: absolute; font-size: 16px; font-weight: bold; color: var(--text-color); z-index: 10; }
+        .stat-circle-label { position: absolute; font-size: 10px; color: var(--red-light); margin-top: 25px; font-weight: bold; }
+
+        /* FEATURE ITEMS */
+        .feature {
+            background: rgba(123, 44, 191, 0.12);
+            margin: 10px 0;
+            padding: 12px 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--red-primary);
+            transition: 0.3s;
+        }
+        .feature:hover { background: rgba(123, 44, 191, 0.2); }
+        .feature-name { font-weight: bold; font-size: 16px; color: var(--red-light); text-shadow: 0 0 5px var(--red-primary); }
+        .feature-desc { font-size: 11px; color: #aaa; margin-top: 2px; }
+        .vip-badge { background: #ffd700; color: #000; font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 6px; box-shadow: 0 0 8px #ffd700; }
+
+        /* TOGGLE SWITCH */
+        .toggle-switch { position: relative; width: 55px; height: 28px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #333; transition: .4s; border-radius: 28px; }
+        .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px; background: #fff; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background: linear-gradient(90deg, #8B00FF, #C084FC); box-shadow: 0 0 10px var(--red-primary); }
+        input:checked + .slider:before { transform: translateX(27px); }
+
+        /* --- SCRIPT RUN PANEL (NÂNG CẤP) --- */
+        .script-panel {
+            background: #0a0a0a;
+            border: 1.5px solid #00ff41;
+            border-radius: 16px;
+            padding: 18px;
+            margin: 25px 0;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+        }
+
+        .script-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .run-btn {
+            padding: 10px 20px;
+            background: #ff4400; /* Mặc định cam đỏ */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-family: 'Rajdhani';
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-size: 13px;
+        }
+
+        .run-btn.running { background: #0099ff; cursor: wait; }
+        .run-btn.success { background: #00cc00; box-shadow: 0 0 15px #00ff41; }
+
+        .log-container { height: 120px; overflow-y: auto; margin-bottom: 15px; scrollbar-width: none; }
+        .log-container::-webkit-scrollbar { display: none; }
+
+        .log {
+            font-family: monospace;
+            color: #00ff88;
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 4px;
+            display: none; /* Hiện từng dòng */
+        }
+
+        .script-buttons { display: flex; gap: 12px; margin-top: 5px; }
+        .btn-fire { flex: 1; padding: 14px; border: none; border-radius: 12px; font-weight: bold; font-size: 15px; color: white; cursor: pointer; transition: 0.2s; }
+        .btn-fire:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-free  { background: linear-gradient(90deg, #ff6600, #ff2200); }
+        .btn-max   { background: linear-gradient(90deg, #0099ff, #0066ff); }
+
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: #777;
+            margin-top: 20px;
+            line-height: 1.6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
     </style>
 </head>
-<body class="text-gray-800">
+<body onload="initApp()">
 
-    <header class="bg-blue-600 text-white p-4 shadow-md sticky top-0 z-50">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold italic tracking-wide">Shop FAROS</h1>
-            
-            <div class="flex items-center gap-3">
-                <div id="auth-buttons" class="flex gap-2">
-                    <button onclick="openAuthModal('login')" class="bg-white text-blue-600 px-4 py-1.5 rounded-full text-sm font-bold hover:bg-gray-100 shadow">Đăng Nhập</button>
-                    <button onclick="openAuthModal('register')" class="bg-blue-800 text-white px-4 py-1.5 rounded-full text-sm font-bold hover:bg-blue-900 shadow">Đăng Ký</button>
-                </div>
-                
-                <div id="user-info" class="hidden flex items-center gap-2">
-                    <div class="bg-blue-800 px-4 py-1.5 rounded-full text-sm font-semibold shadow-inner border border-blue-500">
-                        <span class="text-gray-200" title="Tên đăng nhập"><i class="fas fa-user-circle"></i> <span id="hdr-username">Guest</span></span>
-                        <span class="mx-1 text-blue-400">|</span>
-                        <span class="text-yellow-400" title="ID Tài Khoản của bạn">ID: <span id="hdr-userid">000</span></span>
-                        <span class="mx-1 text-blue-400">|</span>
-                        <span class="text-green-400"><i class="fas fa-wallet"></i> <span id="hdr-balance">0đ</span></span>
-                    </div>
-                    <button onclick="logout()" class="bg-red-500 hover:bg-red-600 w-8 h-8 rounded-full flex justify-center items-center text-white shadow"><i class="fas fa-sign-out-alt"></i></button>
-                </div>
-            </div>
-        </div>
-    </header>
+    <canvas id="matrixCanvas"></canvas>
 
-    <main class="container mx-auto py-10 px-4 max-w-4xl">
-        <div class="text-center mb-10">
-            <h2 class="text-3xl font-extrabold mb-3 text-gray-900">CHỌN HỆ ĐIỀU HÀNH CỦA BẠN</h2>
-            <p class="text-gray-500">Đăng nhập tài khoản để nạp tiền và mua file tự động.</p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-            <button id="btn-adr" onclick="showSection('adr-section')" class="bg-white border-2 border-gray-200 rounded-2xl p-8 shadow-sm smooth-transition transform hover:-translate-y-1 group">
-                <i id="icon-adr" class="fab fa-android text-6xl text-green-500 mb-4 group-hover:scale-110 smooth-transition"></i>
-                <h3 class="text-3xl font-black text-gray-800">ANDROID (ADR)</h3>
-            </button>
-            <button id="btn-ios" onclick="showSection('ios-section')" class="bg-white border-2 border-gray-200 rounded-2xl p-8 shadow-sm smooth-transition transform hover:-translate-y-1 group">
-                <i id="icon-ios" class="fab fa-apple text-6xl text-gray-800 mb-4 group-hover:scale-110 smooth-transition"></i>
-                <h3 class="text-3xl font-black text-gray-800">APPLE (iOS)</h3>
-            </button>
-        </div>
-
-        <div id="adr-section" class="hidden smooth-transition">
-            <h3 class="text-2xl font-bold mb-6 border-l-4 border-green-500 pl-3 uppercase">Danh mục Android</h3>
-            <div class="space-y-4">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <button onclick="togglePricing('price-adr-keotam')" class="w-full flex justify-between items-center p-5 hover:bg-gray-50">
-                        <div class="flex items-center text-lg font-bold"><i class="fas fa-crosshairs text-green-500 w-8"></i> Hỗ trợ kéo tâm</div>
-                        <i class="fas fa-chevron-down text-gray-400"></i>
-                    </button>
-                    <div id="price-adr-keotam" class="hidden bg-gray-50 border-t border-gray-200 p-5">
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            <div onclick="openPaymentModal('Kéo Tâm ADR V1', 100000)" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 1</span><span class="text-red-500">100K</span></div>
-                            <div onclick="openPaymentModal('Kéo Tâm ADR V2', 200000)" class="price-box bg-white p-3 rounded border text-center"><span class="block font-bold">Ver 2</span><span class="text-red-500">200K</span></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="container">
+        <div class="header">
+            <h1 class="glitch">Turbo Head</h1>
+            <p>Zalo: 0389148483</p>
+            <p>TikTok: faros.lovetiktok</p>
         </div>
         
-        <div id="ios-section" class="hidden smooth-transition">
-            <h3 class="text-2xl font-bold mb-6 border-l-4 border-gray-800 pl-3 uppercase">Danh mục iOS</h3>
-            <div class="space-y-4">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <button onclick="togglePricing('price-ios-aim')" class="w-full flex justify-between items-center p-5 hover:bg-gray-50">
-                        <div class="flex items-center text-lg font-bold"><i class="fas fa-crosshairs text-red-500 w-8"></i> Aim (Body/Neck/Drag)</div>
-                        <i class="fas fa-chevron-down text-gray-400"></i>
-                    </button>
-                    <div id="price-ios-aim" class="hidden bg-gray-50 border-t border-gray-200 p-5">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div onclick="openPaymentModal('iOS - Aim Neck', 150000)" class="price-box bg-white p-4 rounded-lg shadow-sm border border-gray-200 text-center"><h5 class="text-lg font-bold text-gray-800 mb-1">Aim Neck</h5><span class="text-xl font-black text-red-500">150K</span></div>
-                        </div>
-                    </div>
+        <div class="performance-card">
+            <div class="performance-stats">
+                <div class="stat-circle-container">
+                    <svg viewBox="0 0 100 100">
+                        <circle class="bg-circle" cx="50" cy="50" r="40"></circle>
+                        <circle id="cpu-progress" class="progress-circle" cx="50" cy="50" r="40"></circle>
+                    </svg>
+                    <span class="stat-circle-text" id="cpu-percent">0%</span>
+                    <span class="stat-circle-label">CPU</span>
+                </div>
+                
+                <div class="stat-circle-container">
+                    <svg viewBox="0 0 100 100">
+                        <circle class="bg-circle" cx="50" cy="50" r="40"></circle>
+                        <circle id="ram-progress" class="progress-circle" cx="50" cy="50" r="40"></circle>
+                    </svg>
+                    <span class="stat-circle-text" id="ram-percent">0%</span>
+                    <span class="stat-circle-label">RAM</span>
+                </div>
+                
+                <div class="stat-circle-container">
+                    <svg viewBox="0 0 100 100">
+                        <circle class="bg-circle" cx="50" cy="50" r="40"></circle>
+                        <circle id="network-progress" class="progress-circle" cx="50" cy="50" r="40"></circle>
+                    </svg>
+                    <span class="stat-circle-text" id="network-percent">0%</span>
+                    <span class="stat-circle-label">NETWORK</span>
                 </div>
             </div>
-        </div>
-    </main>
 
-    <div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden z-[150] flex items-center justify-center backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-2xl p-6 w-11/12 max-w-sm shadow-2xl relative">
-            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-xl"><i class="fas fa-times"></i></button>
-            <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl"><i class="fas fa-user-shield"></i></div>
-                <h3 id="auth-title" class="text-2xl font-bold text-gray-800">Đăng Nhập</h3>
-            </div>
-            <input type="text" id="auth-username" placeholder="Nhập Tên Đăng Nhập..." class="input-auth font-bold tracking-wider text-center" oninput="this.value=this.value.replace(/[^a-zA-Z0-9_]/g,'');">
-            <input type="password" id="auth-pass" placeholder="Nhập Mật Khẩu..." class="input-auth text-center">
-            <button id="auth-submit-btn" onclick="submitAuth()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition shadow-lg mt-2 mb-4">ĐĂNG NHẬP NGAY</button>
-            <div class="text-center text-sm text-gray-600" id="auth-switch-text">
-                Chưa có tài khoản? <span onclick="switchAuthMode('register')" class="text-blue-600 font-bold cursor-pointer hover:underline">Đăng Ký</span>
-            </div>
-        </div>
-    </div>
+            <div style="margin-top: 20px;">
+                <div class="feature">
+                    <div class="feature-info">
+                        <div class="feature-name">AimLock Plus <span class="vip-badge">VIP</span></div>
+                        <div class="feature-desc">Kích Hoạt AimLock</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
 
-    <div id="payment-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden z-[100] flex items-center justify-center backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-2xl p-6 w-11/12 max-w-md shadow-2xl relative">
-            <div class="flex justify-between items-center mb-4 border-b pb-3">
-                <h3 class="text-2xl font-bold text-gray-800"><i class="fas fa-shopping-cart text-blue-600 mr-2"></i>Thanh Toán</h3>
-                <button onclick="closePaymentModal()" class="text-gray-400 hover:text-red-500 text-2xl"><i class="fas fa-times"></i></button>
+                <div class="feature">
+                    <div class="feature-info">
+                        <div class="feature-name">Nhẹ Tâm Plus <span class="vip-badge">VIP</span></div>
+                        <div class="feature-desc">Giúp nhẹ tâm bám đầu</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-info">
+                        <div class="feature-name">FIX RUNG <span class="vip-badge">VIP</span></div>
+                        <div class="feature-desc">Fix Rung Tâm khi bắn</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-info">
+                        <div class="feature-name">Sensivity Pro <span class="vip-badge">VIP</span></div>
+                        <div class="feature-desc">Giúp Nhẹ Tâm Nhạy Màn</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-info">
+                        <div class="feature-name">Bám Đầu <span class="vip-badge">VIP</span></div>
+                        <div class="feature-desc">Tăng bám đầu 85%</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-info">
+                        <div class="feature-name">Giảm Lạc Đạn <span class="vip-badge">VIP</span></div>
+                        <div class="feature-desc">Giúp đạn bay ổn định hơn</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+        <div class="script-panel">
+            <div class="script-header">
+                <span style="font-size:16px; font-weight:bold; color:#00ff41;">📜 Terminal Output</span>
+                <button id="runBtn" class="run-btn" onclick="startScript()">KHỞI CHẠY BỔ SUNG...</button>
             </div>
             
-            <div class="mb-4">
-                <p class="text-sm text-gray-500 mb-1">Đang mua:</p>
-                <div id="modal-product-name" class="font-bold text-xl text-blue-600">Tên sản phẩm</div>
-                <div class="flex items-center gap-2 mt-2">
-                    <span class="text-sm text-gray-500">Giá:</span>
-                    <span id="modal-product-price" class="font-black text-2xl text-red-500">0đ</span>
-                </div>
-            </div>
-            
-            <div class="flex border-b mb-4">
-                <button id="tab-btn-bal" onclick="switchPayTab('bal')" class="flex-1 py-2 text-sm font-bold text-green-600 border-b-2 border-green-600 outline-none">Mua Số Dư</button>
-                <button id="tab-btn-qr" onclick="switchPayTab('qr')" class="flex-1 py-2 text-sm font-bold text-gray-500 border-b-2 border-transparent outline-none">Nạp CK</button>
+            <div class="log-container" id="logBox">
+                <div class="log">> [SYSTEM] Bypassing kernel limitations...</div>
+                <div class="log">> [MEMORY] Cleaning cache buffers...</div>
+                <div class="log">> [PATCH] Injecting FF-Drag offset...</div>
+                <div class="log">> [TOUCH] Optimizing response latency...</div>
+                <div class="log">> [NETWORK] Optimizing DNS for latency...</div>
+                <div class="log">> [CORE] Stabilizing CPU clock frequency...</div>
+                <div class="log">> [DRAG] Applying Aimlock drag velocity...</div>
+                <div class="log">> [FINAL] Patching residual game logs...</div>
+                <div class="log">> [SUCCESS] SCRIPT EXECUTED SUCCESSFULLY!</div>
             </div>
 
-            <div id="tab-content-bal" class="block">
-                <div class="bg-green-50 p-5 rounded-xl border border-green-200 mb-4 text-center">
-                    <p class="text-sm text-gray-600 mb-1">Số dư hiện tại của bạn:</p>
-                    <div id="modal-current-bal" class="font-black text-3xl text-green-600 tracking-wider">0đ</div>
-                </div>
-                <button id="btn-pay-balance" onclick="processBalancePayment()" class="w-full bg-green-500 text-white font-bold py-3 rounded-xl hover:bg-green-600 transition shadow-lg flex justify-center items-center">
-                    <i class="fas fa-check-circle mr-2"></i> XÁC NHẬN MUA NGAY
-                </button>
+            <div class="script-buttons">
+                <button class="btn-fire btn-free" id="btnFree" onclick="launchGame(1)" disabled>🔥 FREE FIRE</button>
+                <button class="btn-fire btn-max" id="btnMax" onclick="launchGame(2)" disabled>⚡ FF MAX</button>
             </div>
+        </div>
 
-            <div id="tab-content-qr" class="hidden">
-                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-4 text-center">
-                    <p class="text-xs text-blue-800 font-bold mb-2">QUÉT MÃ ĐỂ NẠP TIỀN</p>
-                    <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-200 inline-block mb-3">
-                        <img id="modal-qr-code" src="" class="w-40 h-40 object-cover">
-                    </div>
-                    <div class="text-left mx-auto max-w-[250px]">
-                        <p class="text-sm text-gray-600">NH: <strong class="text-green-600">VP Bank</strong></p>
-                        <p class="text-sm mb-2 text-gray-600">Tên: <strong class="text-gray-900">NGUYEN VAN DAN</strong></p>
-                        <div class="bg-white p-2 rounded border border-dashed border-blue-300">
-                            <p class="text-[11px] text-gray-500">Nội dung (Bắt buộc):</p>
-                            <p id="modal-transfer-content" class="text-lg font-bold text-red-500 tracking-wider">NAP ID</p>
-                        </div>
-                    </div>
-                </div>
-                <button onclick="closePaymentModal(); alert('Đang chờ SePay xác nhận...');" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition">TÔI ĐÃ CHUYỂN KHOẢN</button>
-            </div>
+        <div class="footer">
+            © 2026 Zalo Liên Hệ: 0389148483 <br>
+            TikTok: faros.lovetiktok <br>
+            Cung cấp AimLock - Hỗ trợ kéo tâm - Proxy ADR<br>
+            Uy tín - An toàn - Chất lượng
         </div>
     </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyD7UvVO5G5EgCwoYd-VgJYXylUw1nOGSlI",
-            authDomain: "shopfarossite.firebaseapp.com",
-            databaseURL: "https://shopfarossite-default-rtdb.firebaseio.com",
-            projectId: "shopfarossite",
-            storageBucket: "shopfarossite.firebasestorage.app",
-            messagingSenderId: "875754018024",
-            appId: "1:875754018024:web:83114546c4143dd618255d"
-        };
-        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-        const db = firebase.database();
+        // Matrix Rain
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, drops = [];
+        const letters = "01ABCDEFGHIJKLMNOPQRSTUVWXYZｦｱｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ";
+        const fontSize = 15;
 
-        let currentUsername = localStorage.getItem('faros_username');
-        let currentUserId = localStorage.getItem('faros_userid');
-        let currentBalance = 0; let authMode = 'login'; let payingPrice = 0; let payingName = "";
+        function resizeCanvas() {
+            width = window.innerWidth; height = window.innerHeight;
+            canvas.width = width; canvas.height = height;
+            drops = Array(Math.floor(width / fontSize)).fill(1);
+        }
 
-        function initAuth() {
-            if(currentUsername && currentUserId) {
-                document.getElementById('auth-buttons').classList.add('hidden');
-                document.getElementById('user-info').classList.remove('hidden');
-                document.getElementById('hdr-username').innerText = currentUsername;
-                document.getElementById('hdr-userid').innerText = currentUserId;
-                
-                db.ref('users/' + currentUsername).on('value', snap => {
-                    if(snap.exists()) {
-                        currentBalance = parseInt(snap.val().balance) || 0;
-                        document.getElementById('hdr-balance').innerText = currentBalance.toLocaleString() + 'đ';
-                        if(document.getElementById('modal-current-bal')) document.getElementById('modal-current-bal').innerText = currentBalance.toLocaleString() + 'đ';
-                    }
-                });
-            } else {
-                document.getElementById('auth-buttons').classList.remove('hidden'); document.getElementById('user-info').classList.add('hidden');
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0,0,0,0.1)";
+            ctx.fillRect(0,0,width,height);
+            ctx.fillStyle = "#00ff41";
+            ctx.font = fontSize + "px monospace";
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters[Math.floor(Math.random() * letters.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
             }
         }
-        initAuth(); 
 
-        function openAuthModal(mode) {
-            authMode = mode; document.getElementById('auth-pass').value = ''; document.getElementById('auth-modal').classList.remove('hidden');
-            if(mode === 'login') {
-                document.getElementById('auth-title').innerText = 'Đăng Nhập'; document.getElementById('auth-submit-btn').innerText = 'ĐĂNG NHẬP';
-                document.getElementById('auth-switch-text').innerHTML = 'Chưa có tài khoản? <span onclick="openAuthModal(\'register\')" class="text-blue-600 font-bold cursor-pointer hover:underline">Đăng Ký</span>';
-            } else {
-                document.getElementById('auth-title').innerText = 'Đăng Ký'; document.getElementById('auth-submit-btn').innerText = 'TẠO TÀI KHOẢN';
-                document.getElementById('auth-switch-text').innerHTML = 'Đã có tài khoản? <span onclick="openAuthModal(\'login\')" class="text-blue-600 font-bold cursor-pointer hover:underline">Đăng Nhập</span>';
-            }
-        }
-        function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
+        // Script Run Upgraded
+        function startScript() {
+            const btn = document.getElementById('runBtn');
+            const logs = document.querySelectorAll('#logBox .log');
+            const logBox = document.getElementById('logBox');
+            
+            btn.disabled = true;
+            btn.textContent = "ĐANG KHỞI CHẠY..."; // Đổi chữ khi ấn
+            btn.className = "run-btn running"; // Đổi sang màu xanh dương
+            
+            logs.forEach(l => l.style.display = 'none');
 
-        function submitAuth() {
-            const username = document.getElementById('auth-username').value.trim();
-            const pass = document.getElementById('auth-pass').value.trim();
-            if(username.length < 4 || pass.length < 4) return alert("Tên đăng nhập và mật khẩu phải từ 4 ký tự!");
-
-            db.ref('users/' + username).once('value', snap => {
-                if(authMode === 'register') {
-                    if(snap.exists()) { alert("Tên đăng nhập đã tồn tại!"); } 
-                    else {
-                        // TẠO ID MỚI (6 Số)
-                        let newId = Math.floor(100000 + Math.random() * 900000);
-                        db.ref('users/' + username).set({ username: username, password: pass, id: newId, balance: 0, total_deposit: 0 }).then(() => {
-                            localStorage.setItem('faros_username', username); localStorage.setItem('faros_userid', newId);
-                            currentUsername = username; currentUserId = newId; alert("Đăng ký thành công!"); closeAuthModal(); initAuth();
-                        });
-                    }
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i < logs.length) {
+                    logs[i].style.display = 'block';
+                    logBox.scrollTop = logBox.scrollHeight;
+                    i++;
+                    playTickSound(700 + (i * 30));
                 } else {
-                    if(snap.exists() && snap.val().password === pass) {
-                        let uId = snap.val().id || Math.floor(100000 + Math.random() * 900000); // Đảm bảo acc cũ cũng có ID
-                        if(!snap.val().id) db.ref('users/' + username + '/id').set(uId);
-                        localStorage.setItem('faros_username', username); localStorage.setItem('faros_userid', uId);
-                        currentUsername = username; currentUserId = uId; closeAuthModal(); initAuth();
-                    } else alert("Sai thông tin!");
+                    clearInterval(interval);
+                    btn.textContent = "✓ THÀNH CÔNG"; // Đổi chữ khi xong
+                    btn.className = "run-btn success"; // Đổi sang màu xanh lá
+                    document.getElementById('btnFree').disabled = false;
+                    document.getElementById('btnMax').disabled = false;
+                    playFinalSound();
                 }
-            });
+            }, 600);
         }
-        function logout() { localStorage.removeItem('faros_username'); localStorage.removeItem('faros_userid'); location.reload(); }
 
-        function showSection(sectionId) {
-            document.getElementById('adr-section').classList.add('hidden'); document.getElementById('ios-section').classList.add('hidden');
-            document.getElementById('btn-adr').className = "bg-white border-2 border-gray-200 rounded-2xl p-8 shadow-sm opacity-50 smooth-transition";
-            document.getElementById('btn-ios').className = "bg-white border-2 border-gray-200 rounded-2xl p-8 shadow-sm opacity-50 smooth-transition";
-            document.getElementById(sectionId).classList.remove('hidden');
-            document.getElementById((sectionId === 'adr-section') ? 'btn-adr' : 'btn-ios').className = "bg-green-50 border-2 border-green-500 rounded-2xl p-8 shadow-lg opacity-100 smooth-transition";
+        // Audio Effects
+        let audioCtx;
+        function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        
+        function playTickSound(freq) {
+            initAudio();
+            const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+            o.frequency.value = freq; g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+            o.connect(g).connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.1);
         }
-        function togglePricing(priceId) { const el = document.getElementById(priceId); el.classList.contains('hidden') ? el.classList.remove('hidden') : el.classList.add('hidden'); }
 
-        function openPaymentModal(name, price) {
-            if(!currentUsername) return openAuthModal('login');
-            payingName = name; payingPrice = price;
-            document.getElementById('modal-product-name').innerText = name; document.getElementById('modal-product-price').innerText = price.toLocaleString() + 'đ';
+        function playFinalSound() { playTickSound(1000); setTimeout(() => playTickSound(1200), 100); }
+
+        // MỞ GAME TRỰC TIẾP (Đã thay thế theo mã mới, hỗ trợ iOS/Android)
+        function launchGame(type) {
+            const packageName = type === 1 ? "com.dts.freefireth" : "com.dts.freefiremax";
+            const urlScheme = type === 1 ? "freefire" : "freefiremax";
             
-            const btnPay = document.getElementById('btn-pay-balance');
-            if(currentBalance >= price) { btnPay.innerHTML = '<i class="fas fa-check-circle mr-2"></i> MUA NGAY'; btnPay.className = "w-full bg-green-500 text-white font-bold py-3 rounded-xl hover:bg-green-600 transition shadow flex justify-center items-center"; } 
-            else { btnPay.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i> SỐ DƯ KHÔNG ĐỦ'; btnPay.className = "w-full bg-red-500 text-white font-bold py-3 rounded-xl hover:bg-red-600 transition shadow flex justify-center items-center"; }
+            // Âm thanh click
+            playTickSound(1100);
+            setTimeout(() => playTickSound(1400), 50);
 
-            // Gắn ID vào nội dung QR: "NAP ID"
-            let memo = "NAP " + currentUserId;
-            document.getElementById('modal-transfer-content').innerText = memo;
-            let qrUrl = `https://img.vietqr.io/image/vpbank-0389148483-qr_only.png?amount=${price}&addInfo=${encodeURIComponent(memo)}&accountName=NGUYEN VAN DAN`;
-            document.getElementById('modal-qr-code').src = qrUrl;
+            const ua = navigator.userAgent.toLowerCase();
+            const isAndroid = ua.includes('android');
+            const isIOS = ua.includes('iphone') || ua.includes('ipad');
             
-            switchPayTab('bal'); document.getElementById('payment-modal').classList.remove('hidden');
-        }
-        function closePaymentModal() { document.getElementById('payment-modal').classList.add('hidden'); }
-        function switchPayTab(tab) {
-            document.getElementById('tab-content-bal').classList.add('hidden'); document.getElementById('tab-content-qr').classList.add('hidden');
-            document.getElementById('tab-btn-bal').className = "flex-1 py-2 text-sm font-bold text-gray-500 border-b-2 border-transparent outline-none";
-            document.getElementById('tab-btn-qr').className = "flex-1 py-2 text-sm font-bold text-gray-500 border-b-2 border-transparent outline-none";
-            document.getElementById('tab-content-' + tab).classList.remove('hidden');
-            document.getElementById('tab-btn-' + tab).className = `flex-1 py-2 text-sm font-bold ${(tab==='bal')?'text-green-600 border-green-600':'text-blue-600 border-blue-600'} border-b-2 outline-none`;
-        }
-
-        function processBalancePayment() {
-            if(currentBalance < payingPrice) return switchPayTab('qr');
-            if(confirm(`Trừ ${payingPrice.toLocaleString()}đ để mua ${payingName}?`)) {
-                db.ref('users/' + currentUsername + '/balance').set(currentBalance - payingPrice);
-                db.ref('users/' + currentUsername + '/history/' + Date.now()).set({ type: 'buy', desc: 'Mua ' + payingName, amount: payingPrice, status: 'SUCCESS', time: new Date().toLocaleString('vi-VN') });
-                alert("🎉 Mua thành công! Vui lòng Inbox Zalo Admin đọc Username ("+currentUsername+") để lấy File.");
-                closePaymentModal();
+            if (isAndroid) {
+                window.location.href = `intent://#Intent;scheme=${urlScheme};package=${packageName};end`;
+            } else if (isIOS) {
+                window.location.href = `${urlScheme}://`;
+            } else {
+                alert('Vui lòng mở game trên thiết bị di động.');
             }
         }
+
+        // Stats Update
+        function updateStats() {
+            const setVal = (id, val, color) => {
+                const prog = document.getElementById(id + '-progress');
+                const txt = document.getElementById(id + '-percent');
+                prog.style.stroke = color;
+                prog.style.strokeDashoffset = 251.2 - (251.2 * val / 100);
+                txt.textContent = val + '%';
+            };
+            setVal('cpu', Math.floor(Math.random() * 15) + 20, '#ff3333');
+            setVal('ram', Math.floor(Math.random() * 20) + 50, '#ffaa00');
+            setVal('network', Math.floor(Math.random() * 30) + 40, '#00ff41');
+        }
+
+        function initApp() {
+            resizeCanvas();
+            setInterval(drawMatrix, 45);
+            setInterval(updateStats, 2000);
+            updateStats();
+            document.querySelectorAll('.toggle-switch input').forEach(t => t.addEventListener('change', () => playTickSound(900)));
+        }
+
+        window.addEventListener('resize', resizeCanvas);
     </script>
 </body>
 </html>
