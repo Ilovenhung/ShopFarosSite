@@ -9,7 +9,7 @@
   <style>
     :root {
       --bg: #0b0b14; --surface: rgba(20, 20, 38, 0.85); --glass-border: rgba(255, 255, 255, 0.12);
-      --text: #f0f0f8; --text-secondary: #b0b0c8; --ios-blue: #0a84ff; --danger: #ff3b30; --radius-lg: 28px;
+      --text: #f0f0f8; --text-secondary: #b0b0c8; --ios-blue: #0a84ff; --danger: #ff3b30; --success: #00ff88; --radius-lg: 28px;
       --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
       --shadow-glass: 0 8px 30px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08);
     }
@@ -25,17 +25,19 @@
     .key-list { margin-top: 20px; max-height: 300px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 10px; border: 1px solid var(--glass-border); }
     .key-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; }
     .key-item span { color: #00ff88; font-family: monospace; font-weight: bold; }
-    .btn-delete { background: var(--danger); border: none; color: white; padding: 6px 10px; border-radius: 8px; font-size: 0.7rem; cursor: pointer; }
+    .action-btns { display: flex; gap: 6px; }
+    .btn-delete { background: var(--danger); border: none; color: white; padding: 6px 10px; border-radius: 8px; font-size: 0.7rem; cursor: pointer; font-weight: bold; }
+    .btn-copy { background: linear-gradient(135deg, #00ff88, #00b35f); border: none; color: #000; padding: 6px 10px; border-radius: 8px; font-size: 0.7rem; cursor: pointer; font-weight: bold; }
   </style>
 </head>
 <body>
   <canvas id="dustCanvas"></canvas>
   <div class="glass-panel">
-    <h2>PANEL ADMIN</h2>
+    <h2>PANEL ADMIN FAROS</h2>
     <div class="input-group">
-      <label>Tạo Key (Để trống sẽ Random):</label>
+      <label>Tạo Key (Để trống sẽ Random theo HSD):</label>
       <div style="display: flex; gap:10px;">
-        <input type="text" id="adminCustomKey" class="glass-input" placeholder="FAROS-XXXX...">
+        <input type="text" id="adminCustomKey" class="glass-input" placeholder="FAROS-1D-XXXXX...">
         <button class="btn-primary" id="btnRandomKey" style="width: 80px;">🎲</button>
       </div>
     </div>
@@ -63,35 +65,124 @@
     for(let i=0; i<40; i++) particles.push({ x: Math.random() * dCanvas.width, y: Math.random() * dCanvas.height, r: Math.random() * 2 + 0.5, vx: (Math.random() - 0.5) * 0.5, vy: (Math.random() - 0.5) * 0.5, alpha: Math.random() * 0.5 + 0.1 });
     function drawDust() { dCtx.clearRect(0,0, dCanvas.width, dCanvas.height); particles.forEach(p => { p.x += p.vx; p.y += p.vy; if(p.x < 0 || p.x > dCanvas.width) p.vx *= -1; if(p.y < 0 || p.y > dCanvas.height) p.vy *= -1; dCtx.beginPath(); dCtx.arc(p.x, p.y, p.r, 0, Math.PI*2); dCtx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`; dCtx.fill(); }); requestAnimationFrame(drawDust); } drawDust();
 
+    // Hàm lấy chuỗi ký tự ngẫu nhiên XXXXX
+    function makeRandomString(length) {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let result = '';
+      for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    }
+
+    // Hàm tạo tiền tố dựa trên HSD đã chọn
+    function getKeyPrefix(dur) {
+      if (dur === 'lifetime') return 'FAROS-LT-';
+      return `FAROS-${dur}D-`;
+    }
+
+    // Hàm định dạng thời gian bao gồm cả Giờ:Phút:Giây
+    function formatFullDate(timestamp) {
+      if (!timestamp) return 'Không rõ';
+      const date = new Date(timestamp);
+      
+      // Lấy các thành phần thời gian và thêm số 0 ở trước nếu < 10 để nhìn cho đều nhau
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      
+      const day = date.getDate();
+      const month = date.getMonth() + 1;
+      const year = date.getFullYear();
+      
+      return `${hours}:${minutes}:${seconds} - ${day}/${month}/${year}`;
+    }
+
+    // Render danh sách Key dựa trên mốc thời gian (Mới nhất luôn lên đầu)
     function renderKeys() {
       db.ref('keys').on('value', (snap) => {
         const list = document.getElementById('adminKeyList'); list.innerHTML = '';
         const data = snap.val();
         if(!data) { list.innerHTML = 'Chưa có key nào.'; return; }
-        Object.keys(data).reverse().forEach(key => {
-          let k = data[key];
-          let ex = k.expire ? new Date(k.expire).toLocaleDateString() : 'Vĩnh viễn';
+        
+        const keyArray = [];
+        Object.keys(data).forEach(key => {
+          keyArray.push(data[key]);
+        });
+
+        // Sắp xếp giảm dần theo mốc thời gian khởi tạo
+        keyArray.sort((a, b) => {
+          let timeA = a.createdAt || 0;
+          let timeB = b.createdAt || 0;
+          return timeB - timeA;
+        });
+
+        // Duyệt mảng hiển thị lên màn hình
+        keyArray.forEach(k => {
+          // Định dạng lại chuỗi hiển thị HSD hết hạn
+          let ex = k.expire ? formatFullDate(k.expire) : 'Vĩnh viễn';
           let dev = k.devices ? Object.keys(k.devices).length : 0;
-          list.innerHTML += `<div class="key-item"><div><span>${k.code}</span><br><small>${dev}/${k.limit} máy | ${ex}</small></div><button class="btn-delete" onclick="deleteKey('${k.code}')">XÓA</button></div>`;
+          list.innerHTML += `
+            <div class="key-item">
+              <div>
+                <span>${k.code}</span><br>
+                <small>${dev}/${k.limit} máy | Hết hạn: ${ex}</small>
+              </div>
+              <div class="action-btns">
+                <button class="btn-copy" onclick="copyKey('${k.code}')">COPY</button>
+                <button class="btn-delete" onclick="deleteKey('${k.code}')">XÓA</button>
+              </div>
+            </div>`;
         });
       });
     }
 
+    // Sự kiện click nút xúc xắc (Random Key chuẩn cấu trúc)
     document.getElementById('btnRandomKey').addEventListener('click', () => {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; let key = 'FAROS-';
-      for(let i=0; i<8; i++) key += chars.charAt(Math.floor(Math.random() * chars.length));
-      document.getElementById('adminCustomKey').value = key;
+      const dur = document.getElementById('adminDuration').value;
+      const prefix = getKeyPrefix(dur);
+      const suffix = makeRandomString(5);
+      document.getElementById('adminCustomKey').value = prefix + suffix;
     });
 
+    // Sự kiện Tạo Key Mới lên Database
     document.getElementById('btnCreateKey').addEventListener('click', () => {
       let val = document.getElementById('adminCustomKey').value.trim();
-      if(!val) { alert('Vui lòng nhập Key!'); return; }
       const dur = document.getElementById('adminDuration').value;
       const limit = parseInt(document.getElementById('adminDevices').value) || 1;
+
+      if(!val) {
+        const prefix = getKeyPrefix(dur);
+        const suffix = makeRandomString(5);
+        val = prefix + suffix;
+      }
+
       let expire = dur === 'lifetime' ? null : Date.now() + (parseInt(dur) * 24 * 60 * 60 * 1000);
-      db.ref('keys/' + val).set({ code: val, limit: limit, expire: expire, devices: {} });
-      document.getElementById('adminCustomKey').value = '';
+      let nowTimestamp = Date.now();
+      
+      db.ref('keys/' + val).set({ 
+        code: val, 
+        limit: limit, 
+        expire: expire, 
+        devices: {},
+        createdAt: nowTimestamp 
+      }).then(() => {
+        document.getElementById('adminCustomKey').value = '';
+      }).catch((error) => {
+        alert('Lỗi tạo key: ' + error.message);
+      });
     });
+
+    // Hàm xử lý sao chép nhanh vào khay nhớ tạm
+    window.copyKey = (code) => {
+      navigator.clipboard.writeText(code).then(() => {
+        alert('Đã sao chép key: ' + code);
+      }).catch(() => {
+        const t = document.createElement('textarea'); t.value = code; document.body.appendChild(t);
+        t.select(); document.execCommand('copy'); document.body.removeChild(t);
+        alert('Đã sao chép key: ' + code);
+      });
+    };
 
     window.deleteKey = (code) => { if(confirm('Xóa key ' + code + '?')) db.ref('keys/' + code).remove(); };
     renderKeys();
