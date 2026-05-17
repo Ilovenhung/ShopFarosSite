@@ -27,6 +27,11 @@
     .input-group label { display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600; }
     .glass-input { width: 100%; padding: 14px; background: rgba(0,0,0,0.3); border: 1.5px solid var(--glass-border); border-radius: 12px; color: #fff; font-size: 1rem; outline: none; transition: all 0.3s; }
     .glass-input:focus { border-color: var(--ios-blue); box-shadow: 0 0 15px rgba(10,132,255,0.3); }
+    
+    /* Style custom cho ô Remember Me */
+    .remember-group { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; font-size: 0.85rem; color: var(--text-secondary); user-select: none; cursor: pointer; }
+    .remember-group input { width: 16px; height: 16px; accent-color: var(--ios-blue); cursor: pointer; }
+    
     .btn-primary { width: 100%; padding: 14px; background: linear-gradient(135deg, #0a84ff, #005bb5); border: none; border-radius: 12px; color: #fff; font-weight: 800; font-size: 1rem; cursor: pointer; transition: 0.2s; }
     .btn-primary:active { transform: scale(0.96); }
     .admin-link { text-align: center; font-size: 0.75rem; color: var(--text-secondary); margin-top: 20px; cursor: pointer; text-decoration: underline; }
@@ -40,6 +45,12 @@
       <label>Nhập Key Bản Quyền:</label>
       <input type="text" id="loginKeyInput" class="glass-input" placeholder="Ví dụ: FAROS-XXXXXXXXX">
     </div>
+    
+    <label class="remember-group">
+      <input type="checkbox" id="rememberMeCheckbox">
+      <span>Ghi nhớ đăng nhập</span>
+    </label>
+
     <button class="btn-primary" id="btnLogin">ĐĂNG NHẬP</button>
     <div class="admin-link" id="linkToAdmin">Quên Key?</div>
   </div>
@@ -63,11 +74,64 @@
     if(!localStorage.getItem('deviceId')) localStorage.setItem('deviceId', 'DEV-' + Math.random().toString(36).substr(2, 9).toUpperCase());
     const myDeviceId = localStorage.getItem('deviceId');
 
-    // FIX LỖI TẠI ĐÂY
-    document.getElementById('linkToAdmin').addEventListener('click', () => {
-      // Dùng dấu nháy đơn ' ' bên trong dấu nháy kép " " để không bị lỗi
-      const pw = prompt("Nhập mật khẩu (hãy nhập 'dev vdann'):");
+    // --- LOGIC TỰ ĐỘNG ĐĂNG NHẬP KHỞI CHẠY ---
+    const savedKey = localStorage.getItem('savedLoginKey');
+    const rememberMeChecked = localStorage.getItem('rememberMe') === 'true';
+
+    if (rememberMeChecked && savedKey) {
+      // Đổ sẵn key cũ vào ô input và đổi trạng thái nút
+      document.getElementById('loginKeyInput').value = savedKey;
+      document.getElementById('rememberMeCheckbox').checked = true;
+      document.getElementById('btnLogin').innerText = 'ĐANG TỰ ĐỘNG ĐĂNG NHẬP...';
       
+      // Gọi hàm xác thực trực tiếp
+      validateKey(savedKey, true);
+    }
+
+    // Hàm xử lý kiểm tra và xác thực Key
+    function validateKey(inputKey, isAutoLogin = false) {
+      db.ref('keys/' + inputKey).once('value', (snapshot) => {
+        if(!snapshot.exists()) { 
+          alert('Key không tồn tại hoặc đã bị xóa!'); 
+          clearSavedLogin();
+          return; 
+        }
+        let keyData = snapshot.val();
+        if(keyData.expire && Date.now() > keyData.expire) { 
+          alert('Key đã hết hạn sử dụng!'); 
+          clearSavedLogin();
+          return; 
+        }
+        let devices = keyData.devices || {};
+        if(!devices[myDeviceId]) {
+          if(Object.keys(devices).length >= keyData.limit) {
+            alert('Key đạt giới hạn thiết bị!'); 
+            clearSavedLogin();
+            return;
+          } else {
+            db.ref('keys/' + inputKey + '/devices/' + myDeviceId).set(true);
+          }
+        }
+        
+        // Lưu trạng thái phiên làm việc hiện tại
+        localStorage.setItem('isLoggedIn', 'true');
+        window.location.href = 'turboheadfarosplusvdann.html'; 
+      });
+    }
+
+    // Hàm dọn dẹp bộ nhớ khi đăng nhập thất bại/hết hạn
+    function clearSavedLogin() {
+      localStorage.removeItem('savedLoginKey');
+      localStorage.removeItem('rememberMe');
+      localStorage.removeItem('isLoggedIn');
+      document.getElementById('loginKeyInput').value = '';
+      document.getElementById('rememberMeCheckbox').checked = false;
+      document.getElementById('btnLogin').innerText = 'ĐĂNG NHẬP';
+    }
+
+    // Click link Admin
+    document.getElementById('linkToAdmin').addEventListener('click', () => {
+      const pw = prompt("Nhập mật khẩu (hãy nhập 'dev vdann'):");
       if(pw === 'dev vdann') { 
         window.location.href = 'https://zalo.me/0389148483';
       } else if(pw !== null) {
@@ -75,36 +139,24 @@
       }
     });
 
+    // Sự kiện Click Đăng Nhập Thủ Công
     document.getElementById('btnLogin').addEventListener('click', () => {
       const inputKey = document.getElementById('loginKeyInput').value.trim();
+      const isRemember = document.getElementById('rememberMeCheckbox').checked;
+      
       if(!inputKey) { alert('Vui lòng nhập Key!'); return; }
       document.getElementById('btnLogin').innerText = 'ĐANG KIỂM TRA...';
       
-      db.ref('keys/' + inputKey).once('value', (snapshot) => {
-        if(!snapshot.exists()) { 
-          alert('Key không tồn tại!'); 
-          document.getElementById('btnLogin').innerText = 'ĐĂNG NHẬP';
-          return; 
-        }
-        let keyData = snapshot.val();
-        if(keyData.expire && Date.now() > keyData.expire) { 
-          alert('Key đã hết hạn!'); 
-          document.getElementById('btnLogin').innerText = 'ĐĂNG NHẬP';
-          return; 
-        }
-        let devices = keyData.devices || {};
-        if(!devices[myDeviceId]) {
-          if(Object.keys(devices).length >= keyData.limit) {
-            alert('Key đạt giới hạn thiết bị!'); 
-            document.getElementById('btnLogin').innerText = 'ĐĂNG NHẬP';
-            return;
-          } else {
-            db.ref('keys/' + inputKey + '/devices/' + myDeviceId).set(true);
-          }
-        }
-        sessionStorage.setItem('isLoggedIn', 'true');
-        window.location.href = 'turboheadfarosplusvdann.html'; 
-      });
+      // Xử lý bộ nhớ lưu trữ tùy thuộc vào trạng thái Checkbox
+      if(isRemember) {
+        localStorage.setItem('savedLoginKey', inputKey);
+        localStorage.setItem('rememberMe', 'true');
+      } else {
+        localStorage.removeItem('savedLoginKey');
+        localStorage.removeItem('rememberMe');
+      }
+      
+      validateKey(inputKey, false);
     });
   </script>
 </body>
