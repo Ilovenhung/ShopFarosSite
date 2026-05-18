@@ -65,7 +65,6 @@
     for(let i=0; i<40; i++) particles.push({ x: Math.random() * dCanvas.width, y: Math.random() * dCanvas.height, r: Math.random() * 2 + 0.5, vx: (Math.random() - 0.5) * 0.5, vy: (Math.random() - 0.5) * 0.5, alpha: Math.random() * 0.5 + 0.1 });
     function drawDust() { dCtx.clearRect(0,0, dCanvas.width, dCanvas.height); particles.forEach(p => { p.x += p.vx; p.y += p.vy; if(p.x < 0 || p.x > dCanvas.width) p.vx *= -1; if(p.y < 0 || p.y > dCanvas.height) p.vy *= -1; dCtx.beginPath(); dCtx.arc(p.x, p.y, p.r, 0, Math.PI*2); dCtx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`; dCtx.fill(); }); requestAnimationFrame(drawDust); } drawDust();
 
-    // Hàm lấy chuỗi ký tự ngẫu nhiên XXXXX
     function makeRandomString(length) {
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
       let result = '';
@@ -75,32 +74,26 @@
       return result;
     }
 
-    // Hàm tạo tiền tố dựa trên HSD đã chọn
     function getKeyPrefix(dur) {
       if (dur === 'lifetime') return 'FAROS-LT-';
       return `FAROS-${dur}D-`;
     }
 
-    // Hàm định dạng thời gian bao gồm cả Giờ:Phút:Giây
     function formatFullDate(timestamp) {
       if (!timestamp) return 'Không rõ';
       const date = new Date(timestamp);
-      
-      // Lấy các thành phần thời gian và thêm số 0 ở trước nếu < 10 để nhìn cho đều nhau
       const hours = String(date.getHours()).padStart(2, '0');
       const minutes = String(date.getMinutes()).padStart(2, '0');
       const seconds = String(date.getSeconds()).padStart(2, '0');
-      
       const day = date.getDate();
       const month = date.getMonth() + 1;
       const year = date.getFullYear();
-      
       return `${hours}:${minutes}:${seconds} - ${day}/${month}/${year}`;
     }
 
-    // Render danh sách Key dựa trên mốc thời gian (Mới nhất luôn lên đầu)
+    // ĐÃ ĐỔI SANG ĐƯỜNG DẪN BẢO MẬT MỚI
     function renderKeys() {
-      db.ref('keys').on('value', (snap) => {
+      db.ref('Keys_farosWvdann_secure_x367_369_36_67').on('value', (snap) => {
         const list = document.getElementById('adminKeyList'); list.innerHTML = '';
         const data = snap.val();
         if(!data) { list.innerHTML = 'Chưa có key nào.'; return; }
@@ -110,16 +103,13 @@
           keyArray.push(data[key]);
         });
 
-        // Sắp xếp giảm dần theo mốc thời gian khởi tạo
         keyArray.sort((a, b) => {
           let timeA = a.createdAt || 0;
           let timeB = b.createdAt || 0;
           return timeB - timeA;
         });
 
-        // Duyệt mảng hiển thị lên màn hình
         keyArray.forEach(k => {
-          // Định dạng lại chuỗi hiển thị HSD hết hạn
           let ex = k.expire ? formatFullDate(k.expire) : 'Vĩnh viễn';
           let dev = k.devices ? Object.keys(k.devices).length : 0;
           list.innerHTML += `
@@ -137,7 +127,6 @@
       });
     }
 
-    // Sự kiện click nút xúc xắc (Random Key chuẩn cấu trúc)
     document.getElementById('btnRandomKey').addEventListener('click', () => {
       const dur = document.getElementById('adminDuration').value;
       const prefix = getKeyPrefix(dur);
@@ -145,7 +134,7 @@
       document.getElementById('adminCustomKey').value = prefix + suffix;
     });
 
-    // Sự kiện Tạo Key Mới lên Database
+    // ĐÃ ĐỔI SANG ĐƯỜNG DẪN BẢO MẬT MỚI
     document.getElementById('btnCreateKey').addEventListener('click', () => {
       let val = document.getElementById('adminCustomKey').value.trim();
       const dur = document.getElementById('adminDuration').value;
@@ -160,7 +149,7 @@
       let expire = dur === 'lifetime' ? null : Date.now() + (parseInt(dur) * 24 * 60 * 60 * 1000);
       let nowTimestamp = Date.now();
       
-      db.ref('keys/' + val).set({ 
+      db.ref('Keys_farosWvdann_secure_x367_369_36_67/' + val).set({ 
         code: val, 
         limit: limit, 
         expire: expire, 
@@ -173,7 +162,6 @@
       });
     });
 
-    // Hàm xử lý sao chép nhanh vào khay nhớ tạm
     window.copyKey = (code) => {
       navigator.clipboard.writeText(code).then(() => {
         alert('Đã sao chép key: ' + code);
@@ -184,7 +172,13 @@
       });
     };
 
-    window.deleteKey = (code) => { if(confirm('Xóa key ' + code + '?')) db.ref('keys/' + code).remove(); };
+    // ĐÃ ĐỔI SANG ĐƯỜNG DẪN BẢO MẬT MỚI
+    window.deleteKey = (code) => { 
+        if(confirm('Xóa key ' + code + '?')) {
+            db.ref('Keys_farosWvdann_secure_x367_369_36_67/' + code).remove(); 
+        }
+    };
+    
     renderKeys();
   </script>
 </body>
