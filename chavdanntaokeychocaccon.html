@@ -16,7 +16,10 @@
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 40px 10px; }
     #dustCanvas { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
-    .glass-panel { background: var(--surface); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); border: 1.5px solid var(--glass-border); border-radius: var(--radius-lg); padding: 24px; width: 100%; max-width: 420px; box-shadow: var(--shadow-glass); }
+    
+    /* Mặc định ẩn bảng điều khiển để bảo mật, chỉ hiện khi nhập đúng pass */
+    .glass-panel { display: none; background: var(--surface); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); border: 1.5px solid var(--glass-border); border-radius: var(--radius-lg); padding: 24px; width: 100%; max-width: 420px; box-shadow: var(--shadow-glass); }
+    
     .glass-panel h2 { text-align: center; margin-bottom: 20px; font-weight: 800; background: linear-gradient(135deg, #fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .input-group { margin-bottom: 16px; }
     .input-group label { display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600; }
@@ -32,7 +35,7 @@
 </head>
 <body>
   <canvas id="dustCanvas"></canvas>
-  <div class="glass-panel">
+  <div class="glass-panel" id="adminPanel">
     <h2>PANEL ADMIN FAROS</h2>
     <div class="input-group">
       <label>Tạo Key (Để trống sẽ Random theo HSD):</label>
@@ -51,12 +54,26 @@
   </div>
 
   <script>
+    // HỆ THỐNG XÁC THỰC MẬT KHẨU ADMIN KHÓA TRANG
+    const SECRET_PASSWORD = "faroswvdann_vip_ngvandanplus_crackcc3m";
+    let accessGranted = false;
+
+    let inputPass = prompt("Nhập mật khẩu Admin FAROS để truy cập:");
+    if (inputPass === SECRET_PASSWORD) {
+      accessGranted = true;
+      document.getElementById('adminPanel').style.display = 'block';
+    } else {
+      alert("Sai mật khẩu! Truy cập bị từ chối.");
+      window.location.href = 'nhapkey.html'; // Tự động sút về trang nhập key nếu đoán mò pass
+    }
+
+    // Khởi tạo Firebase cấu hình cũ của ông
     const firebaseConfig = {
       apiKey: "AIzaSyD7UvVO5G5EgCwoYd-VgJYXylUw1nOGSlI",
       databaseURL: "https://shopfarossite-default-rtdb.firebaseio.com"
     };
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    if (accessGranted && !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = accessGranted ? firebase.database() : null;
 
     // Dust Effect
     const dCanvas = document.getElementById('dustCanvas'); const dCtx = dCanvas.getContext('2d'); let particles = [];
@@ -94,6 +111,7 @@
 
     // ĐỒNG BỘ ĐƯỜNG DẪN BẢO MẬT MỚI
     function renderKeys() {
+      if(!accessGranted) return;
       db.ref('Keys_farosWvdann_secure_x367_369_36_67').on('value', (snap) => {
         const list = document.getElementById('adminKeyList'); list.innerHTML = '';
         const data = snap.val();
@@ -129,40 +147,42 @@
       });
     }
 
-    document.getElementById('btnRandomKey').addEventListener('click', () => {
-      const dur = document.getElementById('adminDuration').value;
-      const prefix = getKeyPrefix(dur);
-      const suffix = makeRandomString(5);
-      document.getElementById('adminCustomKey').value = prefix + suffix;
-    });
-
-    // ĐỒNG BỘ ĐƯỜNG DẪN BẢO MẬT MỚI
-    document.getElementById('btnCreateKey').addEventListener('click', () => {
-      let val = document.getElementById('adminCustomKey').value.trim();
-      const dur = document.getElementById('adminDuration').value;
-      const limit = parseInt(document.getElementById('adminDevices').value) || 1;
-
-      if(!val) {
+    if(accessGranted) {
+      document.getElementById('btnRandomKey').addEventListener('click', () => {
+        const dur = document.getElementById('adminDuration').value;
         const prefix = getKeyPrefix(dur);
         const suffix = makeRandomString(5);
-        val = prefix + suffix;
-      }
-
-      let expire = dur === 'lifetime' ? null : Date.now() + (parseInt(dur) * 24 * 60 * 60 * 1000);
-      let nowTimestamp = Date.now();
-      
-      db.ref('Keys_farosWvdann_secure_x367_369_36_67/' + val).set({ 
-        code: val, 
-        limit: limit, 
-        expire: expire, 
-        devices: {},
-        createdAt: nowTimestamp 
-      }).then(() => {
-        document.getElementById('adminCustomKey').value = '';
-      }).catch((error) => {
-        alert('Lỗi tạo key: ' + error.message);
+        document.getElementById('adminCustomKey').value = prefix + suffix;
       });
-    });
+
+      // ĐỒNG BỘ ĐƯỜNG DẪN BẢO MẬT MỚI
+      document.getElementById('btnCreateKey').addEventListener('click', () => {
+        let val = document.getElementById('adminCustomKey').value.trim();
+        const dur = document.getElementById('adminDuration').value;
+        const limit = parseInt(document.getElementById('adminDevices').value) || 1;
+
+        if(!val) {
+          const prefix = getKeyPrefix(dur);
+          const suffix = makeRandomString(5);
+          val = prefix + suffix;
+        }
+
+        let expire = dur === 'lifetime' ? null : Date.now() + (parseInt(dur) * 24 * 60 * 60 * 1000);
+        let nowTimestamp = Date.now();
+        
+        db.ref('Keys_farosWvdann_secure_x367_369_36_67/' + val).set({ 
+          code: val, 
+          limit: limit, 
+          expire: expire, 
+          devices: {},
+          createdAt: nowTimestamp 
+        }).then(() => {
+          document.getElementById('adminCustomKey').value = '';
+        }).catch((error) => {
+          alert('Lỗi tạo key: ' + error.message);
+        });
+      });
+    }
 
     window.copyKey = (code) => {
       navigator.clipboard.writeText(code).then(() => {
@@ -176,12 +196,13 @@
 
     // ĐỒNG BỘ ĐƯỜNG DẪN BẢO MẬT MỚI
     window.deleteKey = (code) => { 
+        if(!accessGranted) return;
         if(confirm('Bạn có chắc muốn xóa key ' + code + '?')) {
             db.ref('Keys_farosWvdann_secure_x367_369_36_67/' + code).remove(); 
         }
     };
     
-    renderKeys();
+    if(accessGranted) renderKeys();
   </script>
 </body>
 </html>
