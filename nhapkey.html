@@ -79,18 +79,16 @@
     const rememberMeChecked = localStorage.getItem('rememberMe') === 'true';
 
     if (rememberMeChecked && savedKey) {
-      // Đổ sẵn key cũ vào ô input và đổi trạng thái nút
       document.getElementById('loginKeyInput').value = savedKey;
       document.getElementById('rememberMeCheckbox').checked = true;
       document.getElementById('btnLogin').innerText = 'ĐANG TỰ ĐỘNG ĐĂNG NHẬP...';
       
-      // Gọi hàm xác thực trực tiếp
       validateKey(savedKey, true);
     }
 
-    // Hàm xử lý kiểm tra và xác thực Key
+    // Hàm xử lý kiểm tra và xác thực Key (ĐÃ ĐỒNG BỘ ĐƯỜNG DẪN BẢO MẬT MỚI)
     function validateKey(inputKey, isAutoLogin = false) {
-      db.ref('keys/' + inputKey).once('value', (snapshot) => {
+      db.ref('Keys_farosWvdann_secure_x367_369_36_67/' + inputKey).once('value', (snapshot) => {
         if(!snapshot.exists()) { 
           alert('Key không tồn tại hoặc đã bị xóa!'); 
           clearSavedLogin();
@@ -109,13 +107,17 @@
             clearSavedLogin();
             return;
           } else {
-            db.ref('keys/' + inputKey + '/devices/' + myDeviceId).set(true);
+            // Lưu thiết bị mới vào đúng ngách bảo mật
+            db.ref('Keys_farosWvdann_secure_x367_369_36_67/' + inputKey + '/devices/' + myDeviceId).set(true);
           }
         }
         
         // Lưu trạng thái phiên làm việc hiện tại
         localStorage.setItem('isLoggedIn', 'true');
         window.location.href = 'panel_faroswvdann_214.html'; 
+      }).catch((error) => {
+        alert('Lỗi kết nối cơ sở dữ liệu: ' + error.message);
+        document.getElementById('btnLogin').innerText = 'ĐĂNG NHẬP';
       });
     }
 
