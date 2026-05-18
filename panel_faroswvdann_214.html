@@ -172,7 +172,7 @@
 
         .run-btn {
             padding: 10px 20px;
-            background: #ff4400; /* Mặc định cam đỏ */
+            background: #ff4400;
             color: white;
             border: none;
             border-radius: 8px;
@@ -196,7 +196,7 @@
             font-size: 12px;
             line-height: 1.6;
             margin-bottom: 4px;
-            display: none; /* Hiện từng dòng */
+            display: none;
         }
 
         .script-buttons { display: flex; gap: 12px; margin-top: 5px; }
@@ -222,7 +222,7 @@
 
     <div class="container">
         <div class="header">
-            <h1 class="glitch">Turbo Head FAROS</h1>
+            <h1 class="glitch">Turbo Head</h1>
             <p>Zalo: 0389148483</p>
             <p>TikTok: faros.lovetiktok</p>
         </div>
@@ -358,6 +358,12 @@
     </div>
 
     <script>
+        // --- CHỐT CHẶN BẢO MẬT BẮT BUỘC NHẬP KEY ---
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            alert('Vui lòng quay lại trang đăng nhập để xác thực Key FAROS!');
+            window.location.href = 'nhapkey.html';
+        }
+
         // Matrix Rain
         const canvas = document.getElementById('matrixCanvas');
         const ctx = canvas.getContext('2d');
@@ -427,12 +433,11 @@
 
         function playFinalSound() { playTickSound(1000); setTimeout(() => playTickSound(1200), 100); }
 
-        // MỞ GAME TRỰC TIẾP (Đã thay thế theo mã mới, hỗ trợ iOS/Android)
+        // MỞ GAME TRỰC TIẾP
         function launchGame(type) {
             const packageName = type === 1 ? "com.dts.freefireth" : "com.dts.freefiremax";
             const urlScheme = type === 1 ? "freefire" : "freefiremax";
             
-            // Âm thanh click
             playTickSound(1100);
             setTimeout(() => playTickSound(1400), 50);
 
