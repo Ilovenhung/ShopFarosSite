@@ -17,9 +17,7 @@
     body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 40px 10px; }
     #dustCanvas { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
     
-    /* Mặc định ẩn bảng điều khiển để bảo mật, chỉ hiện khi nhập đúng pass */
     .glass-panel { display: none; background: var(--surface); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); border: 1.5px solid var(--glass-border); border-radius: var(--radius-lg); padding: 24px; width: 100%; max-width: 420px; box-shadow: var(--shadow-glass); }
-    
     .glass-panel h2 { text-align: center; margin-bottom: 20px; font-weight: 800; background: linear-gradient(135deg, #fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .input-group { margin-bottom: 16px; }
     .input-group label { display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600; }
@@ -31,6 +29,10 @@
     .action-btns { display: flex; gap: 6px; margin-left: 10px; flex-shrink: 0; }
     .btn-delete { background: var(--danger); border: none; color: white; padding: 6px 10px; border-radius: 8px; font-size: 0.7rem; cursor: pointer; font-weight: bold; }
     .btn-copy { background: linear-gradient(135deg, #00ff88, #00b35f); border: none; color: #000; padding: 6px 10px; border-radius: 8px; font-size: 0.7rem; cursor: pointer; font-weight: bold; }
+    
+    /* Tùy chỉnh thanh cuộn cho danh sách */
+    .key-list::-webkit-scrollbar { width: 4px; }
+    .key-list::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 4px; }
   </style>
 </head>
 <body>
@@ -54,7 +56,6 @@
   </div>
 
   <script>
-    // HỆ THỐNG XÁC THỰC MẬT KHẨU ADMIN KHÓA TRANG
     const SECRET_PASSWORD = "faroswvdann_vip_ngvandanplus_crackcc3m";
     let accessGranted = false;
 
@@ -64,10 +65,9 @@
       document.getElementById('adminPanel').style.display = 'block';
     } else {
       alert("Sai mật khẩu! Truy cập bị từ chối.");
-      window.location.href = 'nhapkey.html'; // Tự động sút về trang nhập key nếu đoán mò pass
+      window.location.href = 'nhapkey.html';
     }
 
-    // Khởi tạo Firebase cấu hình cũ của ông
     const firebaseConfig = {
       apiKey: "AIzaSyD7UvVO5G5EgCwoYd-VgJYXylUw1nOGSlI",
       databaseURL: "https://shopfarossite-default-rtdb.firebaseio.com"
@@ -85,9 +85,7 @@
     function makeRandomString(length) {
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
       let result = '';
-      for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
+      for (let i = 0; i < length; i++) { result += chars.charAt(Math.floor(Math.random() * chars.length)); }
       return result;
     }
 
@@ -102,14 +100,11 @@
       if (isNaN(date.getTime())) return 'Vĩnh viễn';
       const hours = String(date.getHours()).padStart(2, '0');
       const minutes = String(date.getMinutes()).padStart(2, '0');
-      const seconds = String(date.getSeconds()).padStart(2, '0');
-      const day = date.getDate();
-      const month = date.getMonth() + 1;
-      const year = date.getFullYear();
-      return `${hours}:${minutes}:${seconds} - ${day}/${month}/${year}`;
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      return `${hours}:${minutes} - ${day}/${month}/${date.getFullYear()}`;
     }
 
-    // ĐỒNG BỘ ĐƯỜNG DẪN BẢO MẬT MỚI
     function renderKeys() {
       if(!accessGranted) return;
       db.ref('Keys_farosWvdann_secure_x367_369_36_67').on('value', (snap) => {
@@ -117,26 +112,31 @@
         const data = snap.val();
         if(!data) { list.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px;">Chưa có key nào được tạo.</div>'; return; }
         
-        const keyArray = [];
-        Object.keys(data).forEach(key => {
-          keyArray.push(data[key]);
-        });
-
-        // Sắp xếp key mới tạo lên đầu danh sách
-        keyArray.sort((a, b) => {
-          let timeA = a.createdAt || 0;
-          let timeB = b.createdAt || 0;
-          return timeB - timeA;
-        });
+        const keyArray = Object.values(data).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
         keyArray.forEach(k => {
-          let ex = k.expire ? formatFullDate(k.expire) : 'Vĩnh viễn';
           let dev = k.devices ? Object.keys(k.devices).length : 0;
+          let statusHtml = '';
+
+          // XỬ LÝ TRẠNG THÁI HIỂN THỊ HSD
+          if (k.durationDays === 'lifetime') {
+            statusHtml = '<span style="color: #0a84ff;">Vĩnh viễn</span>';
+          } else if (!k.expire) {
+            statusHtml = `<span style="color: #ffaa00;">Chưa KH (${k.durationDays} Ngày)</span>`;
+          } else {
+            // Kiểm tra xem đã hết hạn chưa
+            if (Date.now() > k.expire) {
+                statusHtml = `<span style="color: var(--danger);">Đã Hết Hạn</span>`;
+            } else {
+                statusHtml = `<span style="color: var(--success);">${formatFullDate(k.expire)}</span>`;
+            }
+          }
+
           list.innerHTML += `
             <div class="key-item">
               <div style="flex:1;">
                 <span>${k.code}</span><br>
-                <small style="color: var(--text-secondary); font-size:0.75rem;">${dev}/${k.limit} máy | HSD: ${ex}</small>
+                <small style="color: var(--text-secondary); font-size:0.75rem;">${dev}/${k.limit} máy | HSD: ${statusHtml}</small>
               </div>
               <div class="action-btns">
                 <button class="btn-copy" onclick="copyKey('${k.code}')">COPY</button>
@@ -150,30 +150,27 @@
     if(accessGranted) {
       document.getElementById('btnRandomKey').addEventListener('click', () => {
         const dur = document.getElementById('adminDuration').value;
-        const prefix = getKeyPrefix(dur);
-        const suffix = makeRandomString(5);
-        document.getElementById('adminCustomKey').value = prefix + suffix;
+        document.getElementById('adminCustomKey').value = getKeyPrefix(dur) + makeRandomString(5);
       });
 
-      // ĐỒNG BỘ ĐƯỜNG DẪN BẢO MẬT MỚI
       document.getElementById('btnCreateKey').addEventListener('click', () => {
         let val = document.getElementById('adminCustomKey').value.trim();
         const dur = document.getElementById('adminDuration').value;
         const limit = parseInt(document.getElementById('adminDevices').value) || 1;
 
         if(!val) {
-          const prefix = getKeyPrefix(dur);
-          const suffix = makeRandomString(5);
-          val = prefix + suffix;
+          val = getKeyPrefix(dur) + makeRandomString(5);
         }
 
-        let expire = dur === 'lifetime' ? null : Date.now() + (parseInt(dur) * 24 * 60 * 60 * 1000);
+        // LƯU SỐ NGÀY THAY VÌ LƯU THỜI GIAN HẾT HẠN
+        let durationDays = dur === 'lifetime' ? 'lifetime' : parseInt(dur);
         let nowTimestamp = Date.now();
         
         db.ref('Keys_farosWvdann_secure_x367_369_36_67/' + val).set({ 
           code: val, 
           limit: limit, 
-          expire: expire, 
+          durationDays: durationDays, // LƯU SỐ NGÀY LẠI ĐỂ TÍNH SAU
+          expire: null,               // CHƯA KÍCH HOẠT NÊN ĐỂ TRỐNG
           devices: {},
           createdAt: nowTimestamp 
         }).then(() => {
@@ -185,16 +182,10 @@
     }
 
     window.copyKey = (code) => {
-      navigator.clipboard.writeText(code).then(() => {
-        alert('Đã sao chép key: ' + code);
-      }).catch(() => {
-        const t = document.createElement('textarea'); t.value = code; document.body.appendChild(t);
-        t.select(); document.execCommand('copy'); document.body.removeChild(t);
-        alert('Đã sao chép key: ' + code);
-      });
+      navigator.clipboard.writeText(code).then(() => { alert('Đã sao chép key: ' + code); })
+      .catch(() => { const t = document.createElement('textarea'); t.value = code; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); alert('Đã sao chép key: ' + code); });
     };
 
-    // ĐỒNG BỘ ĐƯỜNG DẪN BẢO MẬT MỚI
     window.deleteKey = (code) => { 
         if(!accessGranted) return;
         if(confirm('Bạn có chắc muốn xóa key ' + code + '?')) {
