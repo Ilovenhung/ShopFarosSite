@@ -28,7 +28,6 @@
     .glass-input { width: 100%; padding: 14px; background: rgba(0,0,0,0.3); border: 1.5px solid var(--glass-border); border-radius: 12px; color: #fff; font-size: 1rem; outline: none; transition: all 0.3s; }
     .glass-input:focus { border-color: var(--ios-blue); box-shadow: 0 0 15px rgba(10,132,255,0.3); }
     
-    /* Style custom cho ô Remember Me */
     .remember-group { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; font-size: 0.85rem; color: var(--text-secondary); user-select: none; cursor: pointer; }
     .remember-group input { width: 16px; height: 16px; accent-color: var(--ios-blue); cursor: pointer; }
     
@@ -86,20 +85,42 @@
       validateKey(savedKey, true);
     }
 
-    // Hàm xử lý kiểm tra và xác thực Key (ĐÃ ĐỒNG BỘ ĐƯỜNG DẪN BẢO MẬT MỚI)
+    // Hàm xử lý kiểm tra và xác thực Key + Kích hoạt ngày khi sử dụng lần đầu
     function validateKey(inputKey, isAutoLogin = false) {
-      db.ref('Keys_farosWvdann_secure_x367_369_36_67/' + inputKey).once('value', (snapshot) => {
+      const currentDbPath = 'Keys_farosWvdann_secure_x367_369_36_67/' + inputKey;
+      
+      db.ref(currentDbPath).once('value', (snapshot) => {
         if(!snapshot.exists()) { 
           alert('Key không tồn tại hoặc đã bị xóa!'); 
           clearSavedLogin();
           return; 
         }
+        
         let keyData = snapshot.val();
-        if(keyData.expire && Date.now() > keyData.expire) { 
+        let currentTime = Date.now();
+
+        // [TÍNH NĂNG MỚI]: KÍCH HOẠT HSD KHI NHẬP LẦN ĐẦU
+        if (keyData.durationDays !== 'lifetime' && !keyData.expire) {
+          // Tính thời gian hết hạn mới = Hiện tại + (Số ngày cấu hình * 24 giờ)
+          let calculatedExpire = currentTime + (parseInt(keyData.durationDays) * 24 * 60 * 60 * 1000);
+          
+          // Cập nhật mốc thời gian thực tế này lên Firebase
+          db.ref(currentDbPath).update({
+            expire: calculatedExpire
+          });
+          
+          // Đồng bộ giá trị tạm thời để vượt qua bộ lọc kiểm tra bên dưới ngay lập tức
+          keyData.expire = calculatedExpire;
+        }
+
+        // KIỂM TRA HẾT HẠN SỬ DỤNG
+        if(keyData.expire && currentTime > keyData.expire) { 
           alert('Key đã hết hạn sử dụng!'); 
           clearSavedLogin();
           return; 
         }
+
+        // KIỂM TRA GIỚI HẠN THIẾT BỊ
         let devices = keyData.devices || {};
         if(!devices[myDeviceId]) {
           if(Object.keys(devices).length >= keyData.limit) {
@@ -107,12 +128,12 @@
             clearSavedLogin();
             return;
           } else {
-            // Lưu thiết bị mới vào đúng ngách bảo mật
-            db.ref('Keys_farosWvdann_secure_x367_369_36_67/' + inputKey + '/devices/' + myDeviceId).set(true);
+            // Đăng ký thiết bị mới
+            db.ref(currentDbPath + '/devices/' + myDeviceId).set(true);
           }
         }
         
-        // Lưu trạng thái phiên làm việc hiện tại
+        // Hoàn tất lưu phiên và chuyển hướng vào hệ thống quản lý panel
         localStorage.setItem('isLoggedIn', 'true');
         window.location.href = 'panel_faroswvdann_214.html'; 
       }).catch((error) => {
@@ -133,8 +154,8 @@
 
     // Click link Admin
     document.getElementById('linkToAdmin').addEventListener('click', () => {
-      const pw = prompt("Nhập mật khẩu (hãy nhập 'dev vdann'):");
-      if(pw === 'dev vdann') { 
+      const pw = prompt("Nhập mật khẩu (hãy nhập 'vdanndz'):");
+      if(pw === 'vdanndz') { 
         window.location.href = 'https://zalo.me/0389148483';
       } else if(pw !== null) {
         alert("Sai mật khẩu!");
@@ -149,7 +170,6 @@
       if(!inputKey) { alert('Vui lòng nhập Key!'); return; }
       document.getElementById('btnLogin').innerText = 'ĐANG KIỂM TRA...';
       
-      // Xử lý bộ nhớ lưu trữ tùy thuộc vào trạng thái Checkbox
       if(isRemember) {
         localStorage.setItem('savedLoginKey', inputKey);
         localStorage.setItem('rememberMe', 'true');
