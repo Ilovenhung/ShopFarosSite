@@ -12,6 +12,7 @@
       --text: #f0f0f8; --text-secondary: #b0b0c8; --ios-blue: #0a84ff; --radius-lg: 28px;
       --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
       --shadow-glass: 0 8px 30px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08);
+      --danger-neon: #ff453a;
     }
     
     /* CHẶN ẤN GIỮ, CHỌN VĂN BẢN VÀ SAO CHÉP TOÀN TRANG */
@@ -86,7 +87,7 @@
     .admin-link { text-align: center; font-size: 0.75rem; color: var(--text-secondary); margin-top: 18px; cursor: pointer; text-decoration: underline; }
 
     /* ========================================================
-       GIAO DIỆN HỘP THOẠI CUSTOM MODAL ĐẸP MẮT (THAY THẾ PROMPT CHÁN NGẮT)
+       GIAO DIỆN HỘP THOẠI CUSTOM MODAL ĐẸP MẮT
        ======================================================== */
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6);
@@ -123,6 +124,30 @@
     .btn-modal-cancel:active { background: rgba(255,255,255,0.15); }
     .btn-modal-confirm { background: linear-gradient(135deg, #0a84ff, #005bb5); color: #fff; }
     .btn-modal-confirm:active { transform: scale(0.97); }
+
+    /* ========================================================
+       HỘP THOẠI THÔNG BÁO LỖI HỆ THỐNG (ERROR MODAL) MỚI
+       ======================================================== */
+    #errorModal .modal-box {
+      border-color: rgba(255, 69, 58, 0.35);
+      box-shadow: 0 15px 40px rgba(255, 69, 58, 0.15);
+    }
+    #errorModal .modal-title {
+      color: var(--danger-neon);
+      border-bottom: 1px solid rgba(255, 69, 58, 0.15);
+      text-shadow: 0 0 10px rgba(255, 69, 58, 0.3);
+    }
+    #errorModal .modal-text {
+      text-align: center;
+      font-size: 0.92rem;
+      color: #fff;
+      padding: 10px 0;
+    }
+    .btn-modal-danger {
+      background: linear-gradient(135deg, #ff453a, #ff3b30);
+      color: #fff;
+    }
+    .btn-modal-danger:active { transform: scale(0.97); }
   </style>
 </head>
 <body>
@@ -181,6 +206,16 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="errorModal">
+    <div class="modal-box">
+      <div class="modal-title" id="errorModalTitle">THÔNG BÁO HỆ THỐNG</div>
+      <div class="modal-text" id="errorModalMessage">Key nhập vào đã đạt giới hạn thiết bị hoặc đã hết hạn!</div>
+      <div class="modal-actions">
+        <button class="btn-modal btn-modal-danger" id="btnErrorClose" style="width: 100%;">TÔI ĐÃ HIỂU</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyD7UvVO5G5EgCwoYd-VgJYXylUw1nOGSlI",
@@ -200,6 +235,19 @@
     if(!localStorage.getItem('deviceId')) localStorage.setItem('deviceId', 'DEV-' + Math.random().toString(36).substr(2, 9).toUpperCase());
     const myDeviceId = localStorage.getItem('deviceId');
 
+    // Quản lý Modal báo lỗi
+    const errorModal = document.getElementById('errorModal');
+    const errorModalMessage = document.getElementById('errorModalMessage');
+    const btnErrorClose = document.getElementById('btnErrorClose');
+
+    function showError(msg) {
+      errorModalMessage.innerHTML = msg;
+      errorModal.classList.add('active');
+    }
+    btnErrorClose.addEventListener('click', () => {
+      errorModal.classList.remove('active');
+    });
+
     // Tự động kiểm tra phiên đăng nhập cũ
     const savedKey = localStorage.getItem('savedLoginKey');
     const rememberMeChecked = localStorage.getItem('rememberMe') === 'true';
@@ -215,20 +263,20 @@
     function validateKey(inputKey, isAutoLogin = false) {
       db.ref('Keys_farosWvdann_secure_x367_369_36_67/' + inputKey).once('value', (snapshot) => {
         if(!snapshot.exists()) { 
-          alert('Key không tồn tại hoặc đã bị xóa!'); 
+          showError('⚠️ Key không tồn tại trên hệ thống hoặc đã bị gỡ bỏ!'); 
           clearSavedLogin();
           return; 
         }
         let keyData = snapshot.val();
         if(keyData.expire && Date.now() > keyData.expire) { 
-          alert('Key đã hết hạn sử dụng!'); 
+          showError('⏰ Key đã hết hạn sử dụng!'); 
           clearSavedLogin();
           return; 
         }
         let devices = keyData.devices || {};
         if(!devices[myDeviceId]) {
           if(Object.keys(devices).length >= keyData.limit) {
-            alert('Key đạt giới hạn thiết bị!'); 
+            showError('🚫 <strong>Key đã đạt giới hạn thiết bị tối đa!</strong><br><br>Vui lòng liên hệ Admin FAROS<br>để nhận key hoặc mua Key mới.'); 
             clearSavedLogin();
             return;
           } else {
@@ -239,7 +287,7 @@
         localStorage.setItem('isLoggedIn', 'true');
         window.location.href = 'panel_faroswvdann_214.html'; 
       }).catch((error) => {
-        alert('Lỗi kết nối cơ sở dữ liệu: ' + error.message);
+        showError('Lỗi kết nối cơ sở dữ liệu: ' + error.message);
         document.getElementById('btnLogin').innerText = 'ĐĂNG NHẬP HỆ THỐNG';
       });
     }
@@ -278,7 +326,7 @@
         modalOverlay.classList.remove('active');
         window.location.href = 'https://zalo.me/0389148483';
       } else {
-        alert("Mã xác nhận nhập vào không chính xác! Vui lòng kiểm tra lại.");
+        showError("Mã xác nhận nhập vào không chính xác! Vui lòng kiểm tra lại.");
       }
     });
 
@@ -287,7 +335,7 @@
       const inputKey = document.getElementById('loginKeyInput').value.trim();
       const isRemember = document.getElementById('rememberMeCheckbox').checked;
       
-      if(!inputKey) { alert('Vui lòng nhập Key kích hoạt!'); return; }
+      if(!inputKey) { showError('Vui lòng điền mã Key kích hoạt!'); return; }
       document.getElementById('btnLogin').innerText = 'ĐANG KIỂM TRA...';
       
       if(isRemember) {
@@ -301,7 +349,7 @@
       validateKey(inputKey, false);
     });
 
-    // BỔ SUNG SỰ KIỆN CHẶN CHUỘT PHẢI / CÁC PHÍM TẮT COPY TRÊN MÁY TÍNH (NẾU CÓ)
+    // BỔ SUNG SỰ KIỆN CHẶN CHUỘT PHẢI / CÁC PHÍM TẮT COPY TRÊN MÁY TÍNH
     document.addEventListener('contextmenu', event => {
       if (event.target.tagName !== 'INPUT') {
         event.preventDefault();
