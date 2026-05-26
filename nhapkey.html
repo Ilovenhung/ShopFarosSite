@@ -263,7 +263,7 @@
     function validateKey(inputKey, isAutoLogin = false) {
       db.ref('Keys_farosWvdann_secure_x367_369_36_67/' + inputKey).once('value', (snapshot) => {
         if(!snapshot.exists()) { 
-          showError('⚠️ Key không tồn tại trên hệ thống hoặc đã bị gỡ bỏ!'); 
+          showError('⚠️Key không tồn tại trên hệ thống!'); 
           clearSavedLogin();
           return; 
         }
