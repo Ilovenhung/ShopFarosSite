@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FAROS V1">
+  <meta name="mobile-web-app-capable" content="yes">
+
   <title>Đăng Nhập • FAROS SYSTEM</title>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -259,7 +265,9 @@
       validateKey(savedKey, true);
     }
 
-    // Hàm xác thực Key kết nối thẳng tới ngách bảo mật mới
+    // ========================================================
+    // HÀM XÁC THỰC KEY (ĐÃ FIX TÍNH GIỜ & ẨN LINK PANEL)
+    // ========================================================
     function validateKey(inputKey, isAutoLogin = false) {
       db.ref('Keys_farosWvdann_secure_x367_369_36_67/' + inputKey).once('value', (snapshot) => {
         if(!snapshot.exists()) { 
@@ -268,11 +276,38 @@
           return; 
         }
         let keyData = snapshot.val();
+        
+        // 1. Kiểm tra Key đã hết hạn chưa
         if(keyData.expire && Date.now() > keyData.expire) { 
           showError('⏰ Key đã hết hạn sử dụng!'); 
           clearSavedLogin();
           return; 
         }
+
+        // ==============================================================
+        // 2. KÍCH HOẠT ĐẾM NGƯỢC NẾU ĐÂY LÀ LẦN ĐĂNG NHẬP ĐẦU TIÊN CỦA KEY
+        // ==============================================================
+        if (!keyData.expire && keyData.durationDays !== 'lifetime') {
+            let durationMs = 0;
+            let durStr = keyData.durationDays.toString();
+            
+            // Dịch chuỗi thời gian (MIN, H, D) thành Mili-giây
+            if (durStr.includes('MIN')) {
+                durationMs = parseInt(durStr.replace('MIN', '')) * 60 * 1000;
+            } else if (durStr.includes('H')) {
+                durationMs = parseInt(durStr.replace('H', '')) * 60 * 60 * 1000;
+            } else if (durStr.includes('D')) {
+                durationMs = parseInt(durStr.replace('D', '')) * 24 * 60 * 60 * 1000;
+            } else {
+                durationMs = parseInt(durStr) * 24 * 60 * 60 * 1000; // Mặc định là ngày
+            }
+            
+            // Tính giờ hết hạn và lưu ngay lên Firebase
+            let expireTime = Date.now() + durationMs;
+            db.ref('Keys_farosWvdann_secure_x367_369_36_67/' + inputKey + '/expire').set(expireTime);
+        }
+
+        // 3. Kiểm tra thiết bị
         let devices = keyData.devices || {};
         if(!devices[myDeviceId]) {
           if(Object.keys(devices).length >= keyData.limit) {
@@ -284,8 +319,29 @@
           }
         }
         
+        // 4. Lưu trạng thái đăng nhập thành công
         localStorage.setItem('isLoggedIn', 'true');
-        window.location.href = 'panel_faroswvdann_214.html'; 
+        
+        // ==============================================================
+        // 5. CÔNG NGHỆ FETCH: Tải Panel Ẩn Link (Không dùng window.location.href nữa)
+        // Lưu ý: Đổi tên file 'panel_faroswvdann_214.html' bên dưới thành đúng tên file panel của bạn nếu cần
+        // ==============================================================
+        fetch('panel_faroswvdann_214.html')
+          .then(response => {
+            if (!response.ok) throw new Error('Không thể tải file Panel');
+            return response.text();
+          })
+          .then(data => {
+            // Xóa sạch giao diện nhập key cũ và ghi đè nội dung panel lên
+            document.open();
+            document.write(data);
+            document.close();
+          })
+          .catch((err) => {
+            showError('❌ Lỗi tải giao diện hệ thống: ' + err.message);
+            document.getElementById('btnLogin').innerText = 'ĐĂNG NHẬP LẠI';
+          });
+
       }).catch((error) => {
         showError('Lỗi kết nối cơ sở dữ liệu: ' + error.message);
         document.getElementById('btnLogin').innerText = 'ĐĂNG NHẬP HỆ THỐNG';
